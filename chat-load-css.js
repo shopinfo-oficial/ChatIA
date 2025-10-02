@@ -2,7 +2,7 @@
             const link = document.createElement("link");
             link.rel = "stylesheet";
             link.type = "text/css";
-            link.href = "https://api.shopinfo.com.br/chatIA/chatIA.css";
+            link.href = "https://shopinfo-oficial.github.io/ChatIA/chatIA.css";
             document.head.appendChild(link);
         }
 
