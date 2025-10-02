@@ -161,7 +161,7 @@
             height: 10px;
             border-radius: 50%;
             background-color: #38b000;
-            margin-right: 0.2em;
+            margin-right: 0.5em;
             position: relative;
             animation: pulse 1.5s infinite;
         }
@@ -186,7 +186,9 @@
 
         .chatbot-assistant-ia .chat-status {
             display: flex;
+            margin-top: 0.5em;
             align-items: center;
+            font-weight: 600;
 
         }
 
