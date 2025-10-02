@@ -155,13 +155,33 @@
             gap: 4px;
         }
 
-        .chatbot-assistant-ia .status-dot {
+       .chatbot-assistant-ia .status-dot {
             width: 10px;
             height: 10px;
             border-radius: 50%;
             background-color: #38b000;
             margin-right: 0.2em;
+            position: relative;
+            animation: pulse 1.5s infinite;
         }
+
+
+          /* animação do pulsar */
+          @keyframes pulse {
+              0% {
+                  transform: scale(1);
+                  opacity: 1;
+              }
+              50% {
+                  transform: scale(1.4);
+                  opacity: 0.6;
+              }
+              100% {
+                  transform: scale(1);
+                  opacity: 1;
+              }
+          }
+
 
         .chatbot-assistant-ia .chat-status {
             display: flex;
