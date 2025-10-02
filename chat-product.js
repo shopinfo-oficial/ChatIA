@@ -266,22 +266,9 @@ async function getChatHistory() {
     );
     if (!res.ok) throw new Error("HTTP " + res.status);
 
-    // 🔹 lê como texto
-    var text = await res.text();
+    var data = await res.json();
 
-    if (!text) {
-      console.warn("⚠️ Histórico vazio para sessionId:", sessionId);
-      return [];
-    }
-
-    var data;
-    try {
-      data = JSON.parse(text);
-    } catch (err) {
-      console.error("⚠️ Resposta não era JSON válido:", text);
-      return [];
-    }
-
+    // [ { history: [...] } ] OU { history: [...] }
     var history = Array.isArray(data)
       ? data[0] && data[0].history
       : data && data.history;
