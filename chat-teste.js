@@ -226,7 +226,7 @@ function initializeChatUI() {
                                 <path d="M15 13v2"></path>
                                 <path d="M9 13v2"></path>
                             </svg>
-                            <h2 class="welcome-title">Bem-vindo ao ClarityAssist</h2>
+                            <h2 class="welcome-title">Bem-vindo ao Simon Assist</h2>
                             <p class="welcome-text">Pergunte-me qualquer coisa sobre o ${limitedProductName}!</p>
                         </div>
                     `;
