@@ -1,11 +1,9 @@
-     function loadChatCss() {
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.type = "text/css";
-            link.href = "https://shopinfo-oficial.github.io/ChatIA/chatIA.css";
-            document.head.appendChild(link);
-        }
+(function loadChatCss() {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.type = "text/css";
+    link.href = "https://api.shopinfo.com.br/chatIA/chatIA.css";
+    document.head.appendChild(link);
 
-
-        // chama quando a página carregar
-        document.addEventListener("DOMContentLoaded", loadChatCss);
+    console.log("🎨 CSS do chat injetado:", link.href);
+})();
