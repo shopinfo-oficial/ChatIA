@@ -17,57 +17,54 @@ document.body.insertAdjacentHTML(
         `
 );
 
-
-
 document.head.insertAdjacentHTML(
   "beforeend",
   '<link rel="stylesheet" href="https://shopinfo-oficial.github.io/ChatIA/chatIA.css">'
 );
 
+import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
 
- import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
+// Recupera dados do localStorage
+let customSessionId = localStorage.getItem("customSessionId");
+let dataHora = localStorage.getItem("dataHora");
 
-        // Recupera dados do localStorage
-        let customSessionId = localStorage.getItem("customSessionId");
-        let dataHora = localStorage.getItem("dataHora");
+// Verifica se já passou de 24h
+const expirou =
+  !dataHora || new Date() - new Date(dataHora) > 24 * 60 * 60 * 1000;
 
-        // Verifica se já passou de 24h
-        const expirou = !dataHora || (new Date() - new Date(dataHora)) > (24 * 60 * 60 * 1000);
+if (!customSessionId || expirou) {
+  // Gera nova sessão
+  customSessionId = crypto.randomUUID();
+  localStorage.setItem("customSessionId", customSessionId);
+  localStorage.setItem("dataHora", new Date().toISOString());
+  console.log("🆕 Nova sessão criada:", customSessionId);
+} else {
+  console.log("♻️ Sessão existente:", customSessionId);
+}
 
-        if (!customSessionId || expirou) {
-            // Gera nova sessão
-            customSessionId = crypto.randomUUID();
-            localStorage.setItem("customSessionId", customSessionId);
-            localStorage.setItem("dataHora", new Date().toISOString());
-            console.log("🆕 Nova sessão criada:", customSessionId);
-        } else {
-            console.log("♻️ Sessão existente:", customSessionId);
-        }
-
-        // Inicializa o chat
-        const chat = createChat({
-            webhookUrl: "https://primary-2mym-production.up.railway.app/webhook/0671a930-f3bf-4eb4-9139-8b1cc2a8f61e/chat",
-            target: "#simon-chat",
-            webhookConfig: {
-                method: "POST",
-                headers: {
-                    "customSessionId": customSessionId
-                }
-            },
-            metadata: {
-                customSessionId: customSessionId
-            },
-            mode: "window",
-            loadPreviousSession: true,
-            initialMessages: [],
-            i18n: {
-                en: {
-                    inputPlaceholder: "Digite sua mensagem..."
-                }
-            },
-
-        });
-
+// Inicializa o chat
+const chat = createChat({
+  webhookUrl:
+    "https://primary-2mym-production.up.railway.app/webhook/0671a930-f3bf-4eb4-9139-8b1cc2a8f61e/chat",
+  target: "#simon-chat",
+  webhookConfig: {
+    method: "POST",
+    headers: {
+      customSessionId: customSessionId,
+    },
+  },
+  metadata: {
+    customSessionId: customSessionId,
+  },
+  mode: "window",
+  loadPreviousSession: true,
+  initialMessages: [],
+  i18n: {
+    en: {
+      inputPlaceholder: "Digite sua mensagem...",
+    },
+  },
+});
 
 function initializeChatUI() {
   const chatWrapper = document.querySelector(".chat-window-wrapper");
@@ -250,11 +247,7 @@ function initializeChatUI() {
   updateChatHeader();
 }
 
-
-initializeChatUI()
-
-
-
+initializeChatUI();
 
 function getProductInfo() {
   const product = {
@@ -484,32 +477,6 @@ async function getChatHistory() {
     return container.querySelector(sel) !== null;
   }
 
-  function buildHistoryFragment(list) {
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < list.length; i++) {
-      var pair = list[i] || {};
-      var q = pair.Q != null ? String(pair.Q) : "";
-      var a = pair.A != null ? String(pair.A) : "";
-      if (q) frag.appendChild(createMessageEl("user", q));
-      if (a) frag.appendChild(createMessageEl("bot", a));
-    }
-    return frag;
-  }
-
-  function addSectionTitleIfNeeded(container) {
-    if (!ADD_SECTION_TITLE) return null;
-    if (container.querySelector('[data-history-title="1"]')) return null;
-
-    var t = el("div", "chat-message chat-message-from-bot");
-    t.setAttribute("data-history-title", "1");
-    var md = el("div", "chat-message-markdown");
-    var p = el("p", "");
-    p.textContent = "— Histórico —";
-    md.appendChild(p);
-    t.appendChild(md);
-    return t;
-  }
-
   // ====== FETCH ======
   var sessionId = localStorage.getItem("customSessionId");
   if (!sessionId) {
@@ -537,7 +504,7 @@ async function getChatHistory() {
       ? history.slice()
       : history.slice().reverse();
 
-    // ====== RENDER (PREPEND) ======
+    // ====== RENDER ======
     var container = document.querySelector(".chat-messages-list");
     if (!container) {
       console.warn("⚠️ Container .chat-messages-list não encontrado");
@@ -550,11 +517,8 @@ async function getChatHistory() {
       var pair = list[i] || {};
       var q = pair.Q != null ? String(pair.Q) : "";
       var a = pair.A != null ? String(pair.A) : "";
-      if (q && !alreadyRendered(container, "user", q)) {
-        anyNew = true;
-        break;
-      }
-      if (a && !alreadyRendered(container, "bot", a)) {
+      if ((q && !alreadyRendered(container, "user", q)) ||
+          (a && !alreadyRendered(container, "bot", a))) {
         anyNew = true;
         break;
       }
@@ -563,10 +527,18 @@ async function getChatHistory() {
 
     // Monta fragmento com o histórico (já deduplicado ao inserir)
     var frag = document.createDocumentFragment();
-    var titleEl = addSectionTitleIfNeeded(container);
-    if (titleEl) frag.appendChild(titleEl);
 
-    // Recria os elementos garantindo dedupe
+    if (ADD_SECTION_TITLE) {
+      var title = el("div", "chat-message chat-message-from-bot");
+      title.setAttribute("data-history-title", "1");
+      var md = el("div", "chat-message-markdown");
+      var p = el("p", "");
+      p.textContent = "— Histórico —";
+      md.appendChild(p);
+      title.appendChild(md);
+      frag.appendChild(title);
+    }
+
     for (var j = 0; j < list.length; j++) {
       var pair2 = list[j] || {};
       var q2 = pair2.Q != null ? String(pair2.Q) : "";
@@ -577,22 +549,10 @@ async function getChatHistory() {
         frag.appendChild(createMessageEl("bot", a2));
     }
 
-    // âncora: antes do bloco de "digitando" OU, se não existir, antes do primeiro .chat-message;
-    // se não houver nada, vira append (fim).
-    var typingEl = container.querySelector(
-      '.chat-message-typing, [data-test-id="chat-message-typing"]'
-    );
-    var firstMsg = container.querySelector(":scope > .chat-message");
-    var anchor = typingEl || firstMsg || null;
+    // 🔹 HISTÓRICO sempre no topo
+    container.prepend(frag);
 
-    if (typingEl) {
-      container.insertBefore(frag, typingEl);
-    } else {
-      // senão, apenas adiciona no final
-      container.appendChild(frag);
-    }
-
-    // mantém scroll no final para que novas mensagens apareçam abaixo do histórico
+    // 🔹 Scroll para o fim (pra ver as últimas msgs)
     container.scrollTop = container.scrollHeight;
 
     return list;
@@ -601,6 +561,7 @@ async function getChatHistory() {
     return [];
   }
 }
+
 
 // Executa automático ao abrir a página
 const product = getProductInfo();
