@@ -70,6 +70,12 @@
 
 
 
+       .chatbot-assistant-ia  .chat-message-typing .chat-message-typing-circle {
+      
+            background-color: #eaeaea !important;
+     
+        }
+
         .chatbot-assistant-ia .chat-window {
             width: 350px;
             height: 500px;
