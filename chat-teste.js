@@ -585,10 +585,11 @@ async function getChatHistory() {
     var firstMsg = container.querySelector(":scope > .chat-message");
     var anchor = typingEl || firstMsg || null;
 
-    if (anchor) {
-      container.insertBefore(frag, anchor); // PREPEND antes de typing/primeira msg
+    if (typingEl) {
+      container.insertBefore(frag, typingEl);
     } else {
-      container.appendChild(frag); // não havia msgs: só appenda
+      // senão, apenas adiciona no final
+      container.appendChild(frag);
     }
 
     // mantém scroll no final para que novas mensagens apareçam abaixo do histórico
