@@ -69,6 +69,7 @@
 
 
 
+
         .chatbot-assistant-ia .chat-window {
             width: 350px;
             height: 500px;
@@ -370,6 +371,7 @@
         .chatbot-assistant-ia .chat-inputs {
             display: flex;
             align-items: center !important;
+            width: 90%;
         }
 
         .chatbot-assistant-ia .chat-layout .chat-body {
