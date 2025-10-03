@@ -160,23 +160,23 @@ function initializeChatUI() {
   }
 
   // ====== Cabeçalho do chat (mantém seu padrão) ======
- function updateChatHeader() {
-  const chatHeader = document.querySelector(".chat-header");
-  if (!chatHeader) return;
+  function updateChatHeader() {
+    const chatHeader = document.querySelector(".chat-header");
+    if (!chatHeader) return;
 
-  // 🔹 Pega dados do produto usando a mesma lógica do getProductInfo
-  const product = getProductInfo();
+    // 🔹 Pega dados do produto usando a mesma lógica do getProductInfo
+    const product = getProductInfo();
 
-  if (product.image && product.name) {
-    const productImgSrc = product.image;
-    const productName = product.name.trim();
-    const limitedProductName =
-      productName.length > 60
-        ? productName.substring(0, 60) + "..."
-        : productName;
+    if (product.image && product.name) {
+      const productImgSrc = product.image;
+      const productName = product.name.trim();
+      const limitedProductName =
+        productName.length > 60
+          ? productName.substring(0, 60) + "..."
+          : productName;
 
-    // Monta o header SEM o botão X (vamos usar o toggle dentro do header)
-    chatHeader.innerHTML = `
+      // Monta o header SEM o botão X (vamos usar o toggle dentro do header)
+      chatHeader.innerHTML = `
       <div class="chat-info">
         <img src="${productImgSrc}" alt="${productName}" />
         <div class="chat-heading">
@@ -186,17 +186,18 @@ function initializeChatUI() {
       </div>
     `;
 
-    showWelcomeMessage(limitedProductName);
+      showWelcomeMessage(limitedProductName);
 
-    // Se já estiver aberto quando o header for atualizado, garante o toggle no header
-    if (chatWrapper.classList.contains("is-open")) {
-      moveToggleIntoHeader();
+      // Se já estiver aberto quando o header for atualizado, garante o toggle no header
+      if (chatWrapper.classList.contains("is-open")) {
+        moveToggleIntoHeader();
+      }
+    } else {
+      console.error(
+        "Erro: Não foi possível encontrar a imagem ou o nome do produto."
+      );
     }
-  } else {
-    console.error("Erro: Não foi possível encontrar a imagem ou o nome do produto.");
   }
-}
-
 
   // Função para adicionar uma mensagem de boas-vindas ao corpo do chat
   function showWelcomeMessage(limitedProductName) {
@@ -365,33 +366,32 @@ function getProductInfo() {
   // ---
 
   // Restante do código (preço, disponibilidade, etc.)
-// === 3. Preço ===
-if (!product.price) {
-  // Primeiro tenta pelo skuBestPrice
-  const skuBestPriceEl = document.querySelector(".skuBestPrice");
-  if (skuBestPriceEl) {
-    product.price = skuBestPriceEl.textContent.trim();
+  // === 3. Preço ===
+  if (!product.price) {
+    // Primeiro tenta pelo skuBestPrice
+    const skuBestPriceEl = document.querySelector(".skuBestPrice");
+    if (skuBestPriceEl) {
+      product.price = skuBestPriceEl.textContent.trim();
 
-    // Captura preço no PIX se existir
-    const pixPriceEl = skuBestPriceEl.querySelector(".p-pix-price");
-    if (pixPriceEl) {
-      product.pixPrice = pixPriceEl.textContent.trim();
+      // Captura preço no PIX se existir
+      const pixPriceEl = skuBestPriceEl.querySelector(".p-pix-price");
+      if (pixPriceEl) {
+        product.pixPrice = pixPriceEl.textContent.trim();
+      }
     }
   }
-}
 
-// Se ainda não achou, segue com os seletores genéricos
-if (!product.price) {
-  const priceEl = [
-    ...document.querySelectorAll(
-      ".price, .product-price, .product__price, .pdp-price, .sale-price, " +
-        ".regular-price, .final-price, [itemprop='price'], " +
-        "span, strong, div, p"
-    ),
-  ].find((el) => /(\$|R\$)\s?\d+([.,]\d{2})/.test(el.textContent));
-  if (priceEl) product.price = priceEl.textContent.trim();
-}
-
+  // Se ainda não achou, segue com os seletores genéricos
+  if (!product.price) {
+    const priceEl = [
+      ...document.querySelectorAll(
+        ".price, .product-price, .product__price, .pdp-price, .sale-price, " +
+          ".regular-price, .final-price, [itemprop='price'], " +
+          "span, strong, div, p"
+      ),
+    ].find((el) => /(\$|R\$)\s?\d+([.,]\d{2})/.test(el.textContent));
+    if (priceEl) product.price = priceEl.textContent.trim();
+  }
 
   if (!product.availability) {
     const buyBtn = [...document.querySelectorAll("button, a")].find((el) =>
@@ -423,11 +423,12 @@ if (!product.price) {
 
 // O resto do seu código pode ser mantido como está.
 
-async function sendProductToBackend(product) {
+async function sendProductToBackend(product, pageText) {
   const sessionId = localStorage.getItem("customSessionId");
   const payload = {
     sessionId: sessionId || null,
     product,
+    pageText, 
   };
 
   try {
@@ -439,7 +440,39 @@ async function sendProductToBackend(product) {
         body: JSON.stringify(payload),
       }
     );
-  } catch (e) {}
+  } catch (e) {
+    console.error("❌ Erro ao enviar dados:", e);
+  }
+}
+
+function getOnlyTextFromBody() {
+  let walker = document.createTreeWalker(
+    document.body,
+    NodeFilter.SHOW_TEXT,
+    {
+      acceptNode: function (node) {
+        if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        const parentTag = node.parentNode.tagName?.toLowerCase();
+        if (["script", "style", "noscript"].includes(parentTag)) {
+          return NodeFilter.FILTER_REJECT;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      },
+    },
+    false
+  );
+
+  let textContent = [];
+  let node;
+
+  while ((node = walker.nextNode())) {
+    textContent.push(node.nodeValue.trim());
+  }
+
+  let fullText = textContent.join(" ");
+  fullText = fullText.replace(/\s+/g, " ").trim();
+
+  return fullText;
 }
 
 async function getChatHistory() {
@@ -528,8 +561,10 @@ async function getChatHistory() {
       var pair = list[i] || {};
       var q = pair.Q != null ? String(pair.Q) : "";
       var a = pair.A != null ? String(pair.A) : "";
-      if ((q && !alreadyRendered(container, "user", q)) ||
-          (a && !alreadyRendered(container, "bot", a))) {
+      if (
+        (q && !alreadyRendered(container, "user", q)) ||
+        (a && !alreadyRendered(container, "bot", a))
+      ) {
         anyNew = true;
         break;
       }
@@ -573,13 +608,13 @@ async function getChatHistory() {
   }
 }
 
-
 // Executa automático ao abrir a página
 const product = getProductInfo();
+const cleanText = getOnlyTextFromBody();
 
 // Envia produto
 setTimeout(() => {
-  sendProductToBackend(product);
+  sendProductToBackend(product, cleanText);
 }, 1500);
 
 // Busca histórico da conversa
