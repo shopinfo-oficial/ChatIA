@@ -480,6 +480,8 @@
         }
 
 
+
+   
         @media (max-width: 768px) {
             .chatbot-assistant-ia .chat-window-wrapper.is-open .chat-window {
 
@@ -489,8 +491,37 @@
             }
 
             .chatbot-assistant-ia .chat-info img {
-                width: 8em;
+                    width: 5em;
+                    height: 5em;
             }
+
+          .chatbot-assistant-ia .chat-status {
+              display: flex;
+              margin-top: 0.5em;
+              align-items: center;
+              font-weight: 600;
+              font-size: 7pt;
+          }
+
+          .chatbot-assistant-ia .chat-layout .chat-header h1 {
+              font-size: 8pt;
+              color: #fff;
+          }
+
+          .chatbot-assistant-ia .welcome-title {
+                font-size: 1em;
+                font-weight: 600;
+                margin: 0;
+            }
+
+          .chatbot-assistant-ia .welcome-text {
+                font-size: 0.7em;
+                color: #fff;
+                margin: 0;
+            }
+
+
+
 
 
         }
