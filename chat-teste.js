@@ -375,7 +375,7 @@ function getProductInfo() {
   if (!product.price) {
     const priceEl = [
       ...document.querySelectorAll(
-        ".price, .product-price, .product__price, .pdp-price, .sale-price, " +
+        ".price, .product-price, .product__price, .pdp-price, .sale-price, skuBestPrice, " +
           ".regular-price, .final-price, [itemprop='price'], " +
           "span, strong, div, p"
       ),
