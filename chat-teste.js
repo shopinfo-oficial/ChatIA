@@ -160,50 +160,43 @@ function initializeChatUI() {
   }
 
   // ====== Cabeçalho do chat (mantém seu padrão) ======
-  function updateChatHeader() {
-    const chatHeader = document.querySelector(".chat-header");
-    if (!chatHeader) return;
+ function updateChatHeader() {
+  const chatHeader = document.querySelector(".chat-header");
+  if (!chatHeader) return;
 
-    // Seletores genéricos para imagem e nome do produto
-    const productImgElement = document.querySelector(
-      "#image-main, .product-main-image, .product-image img, .image-gallery-container img"
-    );
+  // 🔹 Pega dados do produto usando a mesma lógica do getProductInfo
+  const product = getProductInfo();
 
-    const productNameElement = document.querySelector(
-      ".productName, .product-title, h1.product-name, .product__info--name h1, .product-details__title"
-    );
+  if (product.image && product.name) {
+    const productImgSrc = product.image;
+    const productName = product.name.trim();
+    const limitedProductName =
+      productName.length > 60
+        ? productName.substring(0, 60) + "..."
+        : productName;
 
-    if (productImgElement && productNameElement) {
-      const productImgSrc = productImgElement.src;
-      const productName = productNameElement.textContent.trim();
-      const limitedProductName =
-        productName.length > 60
-          ? productName.substring(0, 60) + "..."
-          : productName;
+    // Monta o header SEM o botão X (vamos usar o toggle dentro do header)
+    chatHeader.innerHTML = `
+      <div class="chat-info">
+        <img src="${productImgSrc}" alt="${productName}" />
+        <div class="chat-heading">
+          <h1>${limitedProductName}</h1>
+          <div class="chat-status"><div class="status-dot"></div> Simon AI está online</div>
+        </div>
+      </div>
+    `;
 
-      // Monta o header SEM o botão X (vamos usar o toggle dentro do header)
-      chatHeader.innerHTML = `
-                        <div class="chat-info">
-                        <img src="${productImgSrc}" alt="${productName}" />
-                        <div class="chat-heading">
-                            <h1>${limitedProductName}</h1>
-                            <div class="chat-status"><div class="status-dot"></div> Simon AI está online</div>
-                        </div>
-                        </div>
-                    `;
+    showWelcomeMessage(limitedProductName);
 
-      showWelcomeMessage(limitedProductName);
-
-      // Se já estiver aberto quando o header for atualizado, garante o toggle no header
-      if (chatWrapper.classList.contains("is-open")) {
-        moveToggleIntoHeader();
-      }
-    } else {
-      console.error(
-        "Erro: Não foi possível encontrar a imagem ou o nome do produto na DOM."
-      );
+    // Se já estiver aberto quando o header for atualizado, garante o toggle no header
+    if (chatWrapper.classList.contains("is-open")) {
+      moveToggleIntoHeader();
     }
+  } else {
+    console.error("Erro: Não foi possível encontrar a imagem ou o nome do produto.");
   }
+}
+
 
   // Função para adicionar uma mensagem de boas-vindas ao corpo do chat
   function showWelcomeMessage(limitedProductName) {
