@@ -372,16 +372,34 @@ function getProductInfo() {
   // ---
 
   // Restante do código (preço, disponibilidade, etc.)
-  if (!product.price) {
-    const priceEl = [
-      ...document.querySelectorAll(
-        ".price, .product-price, .product__price, .pdp-price, .sale-price, skuBestPrice, " +
-          ".regular-price, .final-price, [itemprop='price'], " +
-          "span, strong, div, p"
-      ),
-    ].find((el) => /(\$|R\$)\s?\d+([.,]\d{2})/.test(el.textContent));
-    if (priceEl) product.price = priceEl.textContent.trim();
+// === 3. Preço ===
+if (!product.price) {
+  // Primeiro tenta pelo skuBestPrice
+  const skuBestPriceEl = document.querySelector(".skuBestPrice");
+  if (skuBestPriceEl) {
+    product.price = skuBestPriceEl.textContent.trim();
+
+    // Captura preço no PIX se existir
+    const pixPriceEl = skuBestPriceEl.querySelector(".p-pix-price");
+    if (pixPriceEl) {
+      product.pixPrice = pixPriceEl.textContent.trim();
+    }
   }
+}
+
+// Se ainda não achou, segue com os seletores genéricos
+if (!product.price) {
+  const priceEl = [
+    ...document.querySelectorAll(
+      ".price, .product-price, .product__price, .pdp-price, .sale-price, " +
+        ".regular-price, .final-price, [itemprop='price'], " +
+        "span, strong, div, p"
+    ),
+  ].find((el) => /(\$|R\$)\s?\d+([.,]\d{2})/.test(el.textContent));
+  if (priceEl) product.price = priceEl.textContent.trim();
+}
+
+
   if (!product.availability) {
     const buyBtn = [...document.querySelectorAll("button, a")].find((el) =>
       /compr(ar|e)|add to cart|buy now/i.test(el.textContent)
