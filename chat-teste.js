@@ -418,6 +418,10 @@ function getProductInfo() {
     if (reviewEl) product.reviewCount = reviewEl.textContent.trim();
   }
   console.log("📦 Produto detectado:", product);
+
+
+
+
   return product;
 }
 
@@ -425,10 +429,23 @@ function getProductInfo() {
 
 async function sendProductToBackend(product, pageText) {
   const sessionId = localStorage.getItem("customSessionId");
+  const dataHora = localStorage.getItem("dataHora");
+
+  // Recupera o ID referente à URL atual
+  const currentUrl = window.location.href;
+  const pageKey = "pageSessionData";
+  const storedData = JSON.parse(localStorage.getItem(pageKey) || "{}");
+  const pageSession = storedData[currentUrl] || {};
+
   const payload = {
     sessionId: sessionId || null,
+    pageInfo: {
+      id: pageSession.id || null,
+      dataHora: pageSession.dataHora || dataHora || null,
+      url: currentUrl,
+    },
     product,
-    pageText, 
+    pageText,
   };
 
   try {
@@ -440,10 +457,12 @@ async function sendProductToBackend(product, pageText) {
         body: JSON.stringify(payload),
       }
     );
+    console.log("📤 Dados enviados com sucesso:", payload);
   } catch (e) {
     console.error("❌ Erro ao enviar dados:", e);
   }
 }
+
 
 function getOnlyTextFromBody() {
   let walker = document.createTreeWalker(
@@ -605,6 +624,43 @@ async function getChatHistory() {
   } catch (e) {
     console.error("❌ Erro ao buscar histórico:", e);
     return [];
+  }
+}
+
+
+
+function managePageSession() {
+  const currentUrl = window.location.href;
+  const pageKey = "pageSessionData";
+
+  // Recupera o objeto salvo no localStorage
+  let storedData = JSON.parse(localStorage.getItem(pageKey) || "{}");
+
+  // Recupera dataHora global
+  const dataHora = localStorage.getItem("dataHora");
+  const expirou =
+    !dataHora || new Date() - new Date(dataHora) > 24 * 60 * 60 * 1000;
+
+  // 🔹 Se expirou, limpa tudo
+  if (expirou) {
+    console.log("🧹 Expirou — limpando dados de pageSessionData...");
+    localStorage.removeItem(pageKey); // remove todos os IDs de página
+    return; // sai da função (vai recriar no próximo carregamento)
+  }
+
+  // 🔹 Se ainda válido, verifica se já existe um ID para esta URL
+  if (!storedData[currentUrl]) {
+    const newId = crypto.randomUUID();
+
+    storedData[currentUrl] = {
+      id: newId,
+      dataHora: dataHora,
+    };
+
+    localStorage.setItem(pageKey, JSON.stringify(storedData));
+    console.log("🆕 Novo ID criado para esta página:", newId);
+  } else {
+    console.log("♻️ ID existente para esta página:", storedData[currentUrl].id);
   }
 }
 
