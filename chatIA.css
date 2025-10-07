@@ -524,6 +524,10 @@
                 margin: 0;
             }
 
+          .chatbot-assistant-ia .chat-message-from-bot .chat-message-markdown {
+              max-width: 100%;
+          }
+
 
 
 
