@@ -9,10 +9,9 @@
             right: 2em;
         }
 
-/* .chat-window-wrapper .chat-window-toggle{
-
+[aria-label="Abrir chat"] {
   display: none !important;
-} */
+}
 
 
         .chatbot-assistant-ia .chat-window {
