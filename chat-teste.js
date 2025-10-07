@@ -1,11 +1,11 @@
-const linkN8n = document.createElement("link");
-linkN8n.rel = "stylesheet";
-linkN8n.href = "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css";
+const linkChatSimon = document.createElement("link");
+linkChatSimon.rel = "stylesheet";
+linkChatSimon.href = "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css";
 
 const scriptJsonLd = document.createElement("script");
 scriptJsonLd.src = "https://unpkg.com/jsonld/dist/jsonld.min.js";
 
-document.head.appendChild(linkN8n);
+document.head.appendChild(linkChatSimon);
 document.head.appendChild(scriptJsonLd);
 
 document.body.insertAdjacentHTML(
@@ -243,6 +243,176 @@ function initializeChatUI() {
 
 initializeChatUI();
 
+function CTA() {
+  // ======== BLOCO DE CRIAÇÃO DO CTA ========
+  function createSimonCTA(isMobile) {
+    const wrapper = document.createElement("div");
+    wrapper.id = "simon-help-box";
+    wrapper.style.cssText = `
+      display:flex;
+      justify-content:center;
+      margin-top:${isMobile ? "20px" : "60px"};
+      margin-bottom:10px;
+      width:100%;
+      animation:fadeIn .4s ease;
+    `;
+
+    wrapper.innerHTML = `
+      <section style="
+        background:linear-gradient(145deg,#0f0f0f,#1a1a1a);
+        border:1px solid rgba(0,255,170,0.25);
+        box-shadow:0 0 15px rgba(0,255,170,0.15);
+        border-radius:10px;
+        padding:${isMobile ? "16px" : "20px"};
+        color:#ddd;
+        max-width:${isMobile ? "95%" : "720px"};
+        text-align:center;
+        font-family:'Roboto',sans-serif;
+      ">
+        <h3 style="
+          color:#00ffa3;
+          font-size:${isMobile ? "16px" : "18px"};
+          font-weight:700;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          gap:8px;
+          margin-bottom:10px;
+        ">
+          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png"
+               width="${isMobile ? "22" : "24"}"
+               height="${isMobile ? "22" : "24"}"
+               alt="Simon"
+               style="filter:brightness(0) invert(1);">
+          Precisa de ajuda pra decidir?
+        </h3>
+        <p style="
+          font-size:${isMobile ? "14px" : "15px"};
+          color:#bbb;
+          margin-bottom:${isMobile ? "14px" : "18px"};
+        ">
+          Fale com o <strong style="color:#00ffa3;">Simon</strong> e descubra em segundos se este produto é ideal pra você.
+        </p>
+        <button id="btn-open-simon-chat" style="
+          background:linear-gradient(90deg,#00ffa3,#00c0ff);
+          color:#000;
+          border:none;
+          border-radius:8px;
+          padding:${isMobile ? "10px 20px" : "12px 24px"};
+          font-weight:700;
+          cursor:pointer;
+          font-size:${isMobile ? "15px" : "16px"};
+          box-shadow:0 0 12px rgba(0,255,170,0.4);
+          transition:all .3s ease;
+        " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">
+          💬 Falar com o Simon
+        </button>
+      </section>
+
+      <style>
+        @keyframes fadeIn {
+          from {opacity:0;transform:translateY(10px);}
+          to {opacity:1;transform:translateY(0);}
+        }
+      </style>
+    `;
+
+    // 🔹 Ao clicar no botão, abre o modal do chat
+    setTimeout(() => {
+      const btn = wrapper.querySelector("#btn-open-simon-chat");
+      if (btn) {
+        btn.addEventListener("click", function () {
+          const chatWrapper = document.querySelector(".chat-window-wrapper");
+          const toggle = document.querySelector(".chat-window-toggle");
+
+          if (chatWrapper && toggle) {
+            if (!chatWrapper.classList.contains("is-open")) {
+              toggle.click(); // abre o chat
+            } else {
+              chatWrapper.classList.add("is-open");
+            }
+
+            // foca no campo de mensagem (melhor UX)
+            setTimeout(() => {
+              const input = chatWrapper.querySelector(
+                "textarea, input[type='text']"
+              );
+              if (input) input.focus();
+            }, 400);
+          } else {
+            console.warn("⚠️ Chat do Simon não encontrado para abrir.");
+          }
+        });
+      }
+    }, 1000);
+
+    return wrapper;
+  }
+
+  // ======== WEB (DESKTOP) ========
+  function injectSimonWebCTASeparate() {
+    const firstBlock = document.querySelector(
+      ".productDescription-hexagon.mobile-notshow"
+    );
+    if (!firstBlock || document.querySelector("#simon-help-box")) return;
+
+    // Cria a segunda div com a mesma classe
+    const secondBlock = document.createElement("div");
+    secondBlock.className = "productDescription-hexagon mobile-notshow";
+    secondBlock.style.top = "528px";
+
+    // Adiciona o CTA dentro
+    const cta = createSimonCTA(false);
+    secondBlock.appendChild(cta);
+
+    // Insere logo abaixo do primeiro bloco
+    firstBlock.insertAdjacentElement("afterend", secondBlock);
+    console.log(
+      "🖥️ CTA Simon adicionado no desktop dentro de nova div .productDescription-hexagon."
+    );
+
+    // ======== CSS EXTRA (somente desktop) ========
+    const style = document.createElement("style");
+    style.textContent = `
+      .product__wrapper.product__single {
+        margin-bottom: 180px !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  // ======== MOBILE ========
+  function injectSimonMobileCTA() {
+    const skuInfo = document.querySelector(".product__info--sku");
+    const buyButton = document.querySelector(".buy-button-ref");
+    if (!skuInfo || !buyButton || document.querySelector("#simon-help-box"))
+      return;
+
+    const cta = createSimonCTA(true);
+    buyButton.parentElement.insertAdjacentElement("afterend", cta);
+    console.log("📱 CTA Simon adicionado abaixo do botão Comprar (mobile).");
+  }
+
+  // ======== EXECUÇÃO ========
+  const isMobile = window.innerWidth <= 768;
+
+  const check = setInterval(() => {
+    if (
+      !isMobile &&
+      document.querySelector(".productDescription-hexagon.mobile-notshow")
+    ) {
+      injectSimonWebCTASeparate();
+      clearInterval(check);
+    }
+    if (isMobile && document.querySelector(".buy-button-ref")) {
+      injectSimonMobileCTA();
+      clearInterval(check);
+    }
+  }, 500);
+}
+
+CTA();
+
 function getProductInfo() {
   const product = {
     name: "",
@@ -419,9 +589,6 @@ function getProductInfo() {
   }
   console.log("📦 Produto detectado:", product);
 
-
-
-
   return product;
 }
 
@@ -462,7 +629,6 @@ async function sendProductToBackend(product, pageText) {
     console.error("❌ Erro ao enviar dados:", e);
   }
 }
-
 
 function getOnlyTextFromBody() {
   let walker = document.createTreeWalker(
@@ -626,8 +792,6 @@ async function getChatHistory() {
     return [];
   }
 }
-
-
 
 function managePageSession() {
   const currentUrl = window.location.href;
