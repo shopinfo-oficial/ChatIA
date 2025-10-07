@@ -284,14 +284,14 @@ function CTA() {
                height="${isMobile ? "22" : "24"}"
                alt="Simon"
                style="filter:brightness(0) invert(1);">
-          Precisa de ajuda pra decidir?
+          Precisa de ajuda para decidir?
         </h3>
         <p style="
           font-size:${isMobile ? "14px" : "15px"};
           color:#bbb;
           margin-bottom:${isMobile ? "14px" : "18px"};
         ">
-          Fale com o <strong style="color:#00ffa3;">Simon</strong> e descubra em segundos se este produto é ideal pra você.
+          Descubra em segundos se este produto é ideal para você!
         </p>
         <button id="btn-open-simon-chat" style="
           background:linear-gradient(90deg,#00ffa3,#00c0ff);
