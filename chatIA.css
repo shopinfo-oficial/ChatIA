@@ -9,6 +9,11 @@
             right: 2em;
         }
 
+.chat-window-wrapper .chat-window-toggle{
+
+  display: none !important;
+}
+
 
         .chatbot-assistant-ia .chat-window {
             background: rgba(255, 255, 255, 0.2) !important;
