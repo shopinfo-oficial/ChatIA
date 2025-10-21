@@ -271,7 +271,7 @@ function CTA() {
       ">
         <h3 style="
           color:#00ffa3;
-          font-size:${isMobile ? "16px" : "10px"};
+          font-size:${isMobile ? "16px" : "14px"};
           font-weight:700;
           display:flex;
           align-items:center;
@@ -290,7 +290,7 @@ function CTA() {
           color:#bbb;
           display: flex;
           align-items: center;
-          margin-bottom:${isMobile ? "14px" : "18px"};
+          margin-bottom:${isMobile ? "14px" : "0px"};
         ">
           Descubra em segundos se este produto é ideal para você!
         </p>
@@ -361,7 +361,7 @@ function CTA() {
     // Cria a segunda div com a mesma classe
     const secondBlock = document.createElement("div");
     secondBlock.className = "productDescription-hexagon mobile-notshow";
-    secondBlock.style.top = "528px";
+    secondBlock.style.top = "545px";
     secondBlock.style.setProperty("box-shadow", "none", "important");
 
     // Adiciona o CTA dentro
