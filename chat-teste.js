@@ -270,7 +270,7 @@ function CTA() {
         position: absolute;
       ">
         <h3 style="
-          color:#00ffa3;
+          color:#fff;
           font-size:${isMobile ? "16px" : "14px"};
           font-weight:700;
           display:flex;
