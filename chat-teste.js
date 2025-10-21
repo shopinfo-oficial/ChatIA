@@ -251,44 +251,45 @@ function CTA() {
     wrapper.style.cssText = `
       display:flex;
       justify-content:center;
-      margin-top:${isMobile ? "20px" : "60px"};
-      margin-bottom:10px;
+      margin-top:${isMobile ? "20px" : "0px"};
+      margin-bottom:0px;
       width:100%;
       animation:fadeIn .4s ease;
     `;
 
     wrapper.innerHTML = `
       <section style="
-        background:linear-gradient(145deg,#0f0f0f,#1a1a1a);
-        border:1px solid rgba(0,255,170,0.25);
-        box-shadow:0 0 15px rgba(0,255,170,0.15);
-        border-radius:10px;
-        padding:${isMobile ? "16px" : "20px"};
+       
+      
+        padding:${isMobile ? "16px" : "15px"};
         color:#ddd;
-        max-width:${isMobile ? "95%" : "720px"};
+        max-width:${isMobile ? "95%" : "103%"};
         text-align:center;
         font-family:'Roboto',sans-serif;
+        display: flex;
+        position: absolute;
       ">
         <h3 style="
           color:#00ffa3;
-          font-size:${isMobile ? "16px" : "18px"};
+          font-size:${isMobile ? "16px" : "10px"};
           font-weight:700;
           display:flex;
           align-items:center;
           justify-content:center;
           gap:8px;
-          margin-bottom:10px;
+          margin-bottom:0px;
+              text-align: left;
         ">
-          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png"
-               width="${isMobile ? "22" : "24"}"
-               height="${isMobile ? "22" : "24"}"
-               alt="Simon"
-               style="filter:brightness(0) invert(1);">
+          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png" width="24" height="24" alt="Simon" style="filter: brightness(0) saturate(100%) invert(79%) sepia(94%) saturate(7472%) hue-rotate(117deg) brightness(105%) contrast(101%);">
           Precisa de ajuda para decidir?
         </h3>
         <p style="
-          font-size:${isMobile ? "14px" : "15px"};
+          font-size:${isMobile ? "14px" : "13px"};
+          text-align: left;
+          margin-left: 11px;
           color:#bbb;
+          display: flex;
+          align-items: center;
           margin-bottom:${isMobile ? "14px" : "18px"};
         ">
           Descubra em segundos se este produto é ideal para você!
@@ -298,10 +299,11 @@ function CTA() {
           color:#000;
           border:none;
           border-radius:8px;
-          padding:${isMobile ? "10px 20px" : "12px 24px"};
+          padding:${isMobile ? "10px 20px" : "14px 12px"};
           font-weight:700;
+          width: 285px;
           cursor:pointer;
-          font-size:${isMobile ? "15px" : "16px"};
+          font-size:${isMobile ? "15px" : "14px"};
           box-shadow:0 0 12px rgba(0,255,170,0.4);
           transition:all .3s ease;
         " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">
@@ -360,6 +362,7 @@ function CTA() {
     const secondBlock = document.createElement("div");
     secondBlock.className = "productDescription-hexagon mobile-notshow";
     secondBlock.style.top = "528px";
+    secondBlock.style.setProperty("box-shadow", "none", "important");
 
     // Adiciona o CTA dentro
     const cta = createSimonCTA(false);
