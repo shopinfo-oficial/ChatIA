@@ -841,7 +841,7 @@ async function sendFeedback(valor) {
 
   try {
     await fetch(
-      "https://primary-2mym-production.up.railway.app/webhook/feedback-simon",
+      "https://primary-2mym-production.up.railway.app/webhook/7137d3d0-a0f2-4616-a0a8-3b688720e31b",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
