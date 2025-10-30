@@ -843,22 +843,14 @@ async function getChatHistory() {
     // 🔹 Scroll para o fim (pra ver as últimas msgs)
     container.scrollTop = container.scrollHeight;
 
-    setTimeout(() => {
-      const checkExist = setInterval(() => {
-        const container = document.querySelector(".chat-messages-list");
-        if (container) {
-          clearInterval(checkExist);
-          showFeedbackButtons();
-        }
-      }, 500);
-    }, 8000);
-    
-        return list;
-      } catch (e) {
-        console.error("❌ Erro ao buscar histórico:", e);
-        return [];
-      }
-    }
+    setTimeout(showFeedbackButtons, 10000);
+
+    return list;
+  } catch (e) {
+    console.error("❌ Erro ao buscar histórico:", e);
+    return [];
+  }
+}
 
 // 🔹 Mostra botões de feedback
 function showFeedbackButtons() {
