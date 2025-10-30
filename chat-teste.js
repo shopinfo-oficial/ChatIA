@@ -783,7 +783,7 @@ async function getChatHistory() {
     }
 
     // 🔹 HISTÓRICO sempre no topo
-    container.appendChild(frag);
+    container.prepend(frag);
 
     // 🔹 Scroll para o fim (pra ver as últimas msgs)
     container.scrollTop = container.scrollHeight;
