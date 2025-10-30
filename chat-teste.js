@@ -732,9 +732,8 @@ async function getChatHistory() {
     if (!Array.isArray(history) || !history.length) return [];
 
     // ordem interna do histórico
-    var list = RENDER_OLDEST_FIRST
-      ? history.slice()
-      : history.slice();
+    // 🔄 inverte a ordem dos dados antes de renderizar (do mais antigo para o mais novo)
+    var list = history.slice().reverse();
 
     // ====== RENDER ======
     var container = document.querySelector(".chat-messages-list");
