@@ -66,6 +66,7 @@ const chat = createChat({
   },
 });
 
+
 function showFeedbackButtons() {
   const chatBody = document.querySelector(".chat-body");
   const container = document.querySelector(".chat-messages-list");
@@ -121,35 +122,6 @@ function showFeedbackButtons() {
   btnNo.addEventListener("click", () => sendFeedback("nao"));
 }
 
-async function sendFeedback(resposta) {
-  const sessionId = localStorage.getItem("customSessionId") || "sem_sessao";
-  const currentUrl = window.location.href;
-
-  try {
-    await fetch(
-      "https://primary-2mym-production.up.railway.app/webhook/feedback-simon",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          url: currentUrl,
-          feedback: resposta,
-          data: new Date().toISOString(),
-        }),
-      }
-    );
-
-    console.log("📝 Feedback enviado:", resposta);
-
-    const fb = document.querySelector(".feedback-buttons");
-    if (fb) {
-      fb.innerHTML = `<p style="color:#00ffa3;font-weight:600;text-align:center;">Obrigado pelo seu feedback! 💚</p>`;
-    }
-  } catch (e) {
-    console.error("❌ Erro ao enviar feedback:", e);
-  }
-}
 
 function initializeChatUI() {
   const chatWrapper = document.querySelector(".chat-window-wrapper");
@@ -875,12 +847,71 @@ async function getChatHistory() {
 
     setTimeout(showFeedbackButtons, 10000);
 
+
     return list;
   } catch (e) {
     console.error("❌ Erro ao buscar histórico:", e);
     return [];
   }
 }
+
+
+
+
+
+// 🔹 Mostra botões de feedback
+function showFeedbackButtons() {
+  const container = document.querySelector(".chat-messages-list");
+  if (!container || document.querySelector(".feedback-buttons")) return;
+
+  const div = document.createElement("div");
+  div.className = "feedback-buttons";
+  div.style.cssText = "display:flex;justify-content:center;gap:8px;margin:10px 0;";
+
+  const text = document.createElement("p");
+  text.textContent = "O Simon conseguiu te ajudar?";
+  text.style.cssText = "width:100%;text-align:center;color:#ccc;margin-bottom:5px;";
+
+  const yes = document.createElement("button");
+  yes.textContent = "Sim 😄";
+  yes.style.cssText = "background:#00ffa3;color:#000;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;";
+
+  const no = document.createElement("button");
+  no.textContent = "Não 😕";
+  no.style.cssText = "background:#333;color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;";
+
+  div.append(text, yes, no);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+
+  yes.addEventListener("click", () => sendFeedback("sim"));
+  no.addEventListener("click", () => sendFeedback("nao"));
+}
+
+// 🔹 Envia feedback para o backend
+async function sendFeedback(valor) {
+  const sessionId = localStorage.getItem("customSessionId");
+  const url = window.location.href;
+
+  try {
+    await fetch("https://primary-2mym-production.up.railway.app/webhook/feedback-simon", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        sessionId,
+        url,
+        feedback: valor,
+        dataHora: new Date().toISOString(),
+      }),
+    });
+    const fb = document.querySelector(".feedback-buttons");
+    if (fb) fb.innerHTML = `<p style="color:#00ffa3;text-align:center;">Valeu pelo feedback 💚</p>`;
+    console.log("📝 Feedback enviado:", valor);
+  } catch (e) {
+    console.error("❌ Erro ao enviar feedback:", e);
+  }
+}
+
 
 function managePageSession() {
   const currentUrl = window.location.href;
