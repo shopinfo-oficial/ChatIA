@@ -66,6 +66,91 @@ const chat = createChat({
   },
 });
 
+function showFeedbackButtons() {
+  const chatBody = document.querySelector(".chat-body");
+  const container = document.querySelector(".chat-messages-list");
+  if (!container || document.querySelector(".feedback-buttons")) return;
+
+  // Cria o container dos botões
+  const feedback = document.createElement("div");
+  feedback.classList.add("feedback-buttons");
+  feedback.style.cssText = `
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 12px;
+  `;
+
+  const text = document.createElement("p");
+  text.textContent = "O Simon conseguiu te ajudar?";
+  text.style.cssText = "text-align:center;color:#ccc;margin-bottom:8px;";
+  feedback.appendChild(text);
+
+  // Cria botões
+  const btnYes = document.createElement("button");
+  btnYes.textContent = "Sim 😄";
+  btnYes.style.cssText = `
+    background:linear-gradient(90deg,#00ffa3,#00c0ff);
+    border:none;
+    border-radius:8px;
+    color:#000;
+    padding:6px 14px;
+    font-weight:700;
+    cursor:pointer;
+  `;
+
+  const btnNo = document.createElement("button");
+  btnNo.textContent = "Não 😕";
+  btnNo.style.cssText = `
+    background:#333;
+    border:1px solid #555;
+    border-radius:8px;
+    color:#fff;
+    padding:6px 14px;
+    font-weight:700;
+    cursor:pointer;
+  `;
+
+  feedback.appendChild(btnYes);
+  feedback.appendChild(btnNo);
+  container.appendChild(feedback);
+  container.scrollTop = container.scrollHeight;
+
+  // Ação dos botões
+  btnYes.addEventListener("click", () => sendFeedback("sim"));
+  btnNo.addEventListener("click", () => sendFeedback("nao"));
+}
+
+async function sendFeedback(resposta) {
+  const sessionId = localStorage.getItem("customSessionId") || "sem_sessao";
+  const currentUrl = window.location.href;
+
+  try {
+    await fetch(
+      "https://primary-2mym-production.up.railway.app/webhook/feedback-simon",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          url: currentUrl,
+          feedback: resposta,
+          data: new Date().toISOString(),
+        }),
+      }
+    );
+
+    console.log("📝 Feedback enviado:", resposta);
+
+    const fb = document.querySelector(".feedback-buttons");
+    if (fb) {
+      fb.innerHTML = `<p style="color:#00ffa3;font-weight:600;text-align:center;">Obrigado pelo seu feedback! 💚</p>`;
+    }
+  } catch (e) {
+    console.error("❌ Erro ao enviar feedback:", e);
+  }
+}
+
 function initializeChatUI() {
   const chatWrapper = document.querySelector(".chat-window-wrapper");
   const chatToggle = document.querySelector(".chat-window-toggle");
@@ -787,6 +872,8 @@ async function getChatHistory() {
 
     // 🔹 Scroll para o fim (pra ver as últimas msgs)
     container.scrollTop = container.scrollHeight;
+
+    setTimeout(showFeedbackButtons, 10000);
 
     return list;
   } catch (e) {
