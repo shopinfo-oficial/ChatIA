@@ -66,7 +66,6 @@ const chat = createChat({
   },
 });
 
-
 function initializeChatUI() {
   const chatWrapper = document.querySelector(".chat-window-wrapper");
   const chatToggle = document.querySelector(".chat-window-toggle");
@@ -123,10 +122,40 @@ function initializeChatUI() {
     restoreToggleToOriginalPlace();
   }
 
+
   // Clique no próprio toggle: abre se fechado, fecha (e restaura) se aberto
-  chatToggle.addEventListener("click", function () {
+  chatToggle.addEventListener("click", async function () {
+    // 🔹 Se o chat estiver aberto, vamos fechar e possivelmente abrir o modal
     if (chatWrapper.classList.contains("is-open")) {
       closeChat();
+
+      // 🔸 Espera o fechamento visual
+      setTimeout(async () => {
+        try {
+          const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
+          if (jaEnviado) {
+            console.log("✅ Feedback já enviado — modal não será exibido.");
+            return;
+          }
+
+          // 🔸 Busca histórico
+          const history = await getChatHistory();
+          const temHistorico = Array.isArray(history) && history.length > 0;
+
+          if (temHistorico) {
+            console.log(
+              "🟢 Histórico encontrado — exibindo modal de feedback..."
+            );
+            showFeedbackModal();
+          } else {
+            console.log("ℹ️ Nenhum histórico encontrado — não exibe modal.");
+          }
+        } catch (err) {
+          console.error("❌ Erro ao verificar histórico:", err);
+        }
+      }, 400);
+
+      // 🔹 Se o chat estiver fechado, apenas abre normalmente
     } else {
       openChat();
     }
@@ -789,8 +818,6 @@ async function getChatHistory() {
     // 🔹 Scroll para o fim (pra ver as últimas msgs)
     container.scrollTop = container.scrollHeight;
 
-    setTimeout(showFeedbackButtons, 10000);
-
     return list;
   } catch (e) {
     console.error("❌ Erro ao buscar histórico:", e);
@@ -798,46 +825,115 @@ async function getChatHistory() {
   }
 }
 
-// 🔹 Mostra botões de feedback
-function showFeedbackButtons() {
+// ======= MODAL DE FEEDBACK =======
+function showFeedbackModal() {
+  console.log("🟢 Abrindo modal de feedback...");
 
-    console.log("Mostrando botões de feedback...");
-    
-  const container = document.querySelector(".chat-messages-list");
-  if (!container || document.querySelector(".feedback-buttons")) return;
+  const backdrop = document.createElement("div");
+  backdrop.style.cssText = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  `;
 
-  const div = document.createElement("div");
-  div.className = "feedback-buttons";
-  div.style.cssText =
-    "display:flex;justify-content:center;gap:8px;margin:10px 0;";
+  const modal = document.createElement("div");
+  modal.style.cssText = `
+    background: #1a1a1a;
+    color: #fff;
+    padding: 20px 25px;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 320px;
+    width: 90%;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    position: relative;
+    animation: fadeIn .3s ease;
+  `;
 
-  const text = document.createElement("p");
-  text.textContent = "O Simon conseguiu te ajudar?";
-  text.style.cssText =
-    "width:100%;text-align:center;color:#ccc;margin-bottom:5px;";
+  const closeBtn = document.createElement("button");
+  closeBtn.innerHTML = "✖";
+  closeBtn.style.cssText = `
+    position: absolute;
+    top: 10px; right: 10px;
+    background: none;
+    border: none;
+    color: #999;
+    font-size: 18px;
+    cursor: pointer;
+  `;
 
-  const yes = document.createElement("button");
-  yes.textContent = "Sim 😄";
-  yes.style.cssText =
-    "background:#00ffa3;color:#000;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;";
+  const title = document.createElement("h3");
+  title.textContent = "O Simon conseguiu te ajudar?";
+  title.style.marginBottom = "15px";
 
-  const no = document.createElement("button");
-  no.textContent = "Não 😕";
-  no.style.cssText =
-    "background:#333;color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;";
+  const btnSim = document.createElement("button");
+  btnSim.textContent = "Sim 😄";
+  btnSim.style.cssText = `
+    background:#00ffa3;
+    color:#000;
+    border:none;
+    padding:8px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    margin-right:8px;
+  `;
 
-  div.append(text, yes, no);
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
+  const btnNao = document.createElement("button");
+  btnNao.textContent = "Não 😕";
+  btnNao.style.cssText = `
+    background:#333;
+    color:#fff;
+    border:none;
+    padding:8px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+  `;
 
-  yes.addEventListener("click", () => sendFeedback("sim"));
-  no.addEventListener("click", () => sendFeedback("nao"));
+  modal.append(closeBtn, title, btnSim, btnNao);
+  backdrop.appendChild(modal);
+  document.body.appendChild(backdrop);
+
+  // Fechar modal manualmente
+  function fecharModalManual() {
+    document.body.removeChild(backdrop);
+    localStorage.setItem("feedbackModalFechado", "true");
+    console.log("❌ Modal fechado manualmente (sem feedback).");
+  }
+
+  closeBtn.addEventListener("click", fecharModalManual);
+  backdrop.addEventListener("click", (e) => {
+    if (e.target === backdrop) fecharModalManual();
+  });
+
+  // Botões de feedback
+  btnSim.addEventListener("click", async () => {
+    await sendFeedback("sim");
+    document.body.removeChild(backdrop);
+  });
+
+  btnNao.addEventListener("click", async () => {
+    await sendFeedback("nao");
+    document.body.removeChild(backdrop);
+  });
 }
 
+
+
+
 // 🔹 Envia feedback para o backend
+
 async function sendFeedback(valor) {
   const sessionId = localStorage.getItem("customSessionId");
   const url = window.location.href;
+
+  localStorage.setItem("feedbackEnviado", "false");
 
   try {
     await fetch(
@@ -853,14 +949,19 @@ async function sendFeedback(valor) {
         }),
       }
     );
-    const fb = document.querySelector(".feedback-buttons");
-    if (fb)
-      fb.innerHTML = `<p style="color:#00ffa3;text-align:center;">Valeu pelo feedback 💚</p>`;
+
+    localStorage.setItem("feedbackEnviado", "true");
     console.log("📝 Feedback enviado:", valor);
   } catch (e) {
     console.error("❌ Erro ao enviar feedback:", e);
+    localStorage.setItem("feedbackEnviado", "false");
   }
 }
+
+
+
+
+
 
 function managePageSession() {
   const currentUrl = window.location.href;
