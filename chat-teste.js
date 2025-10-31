@@ -1,4 +1,4 @@
-```javascript
+
 const linkChatSimon = document.createElement("link");
 linkChatSimon.rel = "stylesheet";
 linkChatSimon.href = "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css";
@@ -1025,4 +1025,3 @@ setTimeout(() => {
 setTimeout(() => {
   getChatHistory();
 }, 2000);
-```
