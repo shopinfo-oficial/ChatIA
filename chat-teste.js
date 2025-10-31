@@ -66,6 +66,7 @@ const chat = createChat({
   },
 });
 
+
 function initializeChatUI() {
   const chatWrapper = document.querySelector(".chat-window-wrapper");
   const chatToggle = document.querySelector(".chat-window-toggle");
@@ -325,43 +326,25 @@ function CTA() {
       if (btn) {
         btn.addEventListener("click", function () {
           const chatWrapper = document.querySelector(".chat-window-wrapper");
+          const toggle = document.querySelector(".chat-window-toggle");
 
-          if (!chatWrapper) {
-            console.warn("⚠️ Chat ainda não foi inicializado.");
-            return;
-          }
-
-          // 🔹 Força abertura do chat
-          chatWrapper.classList.add("is-open");
-
-          // 🔹 Move o botão toggle pro header, se não estiver
-          const header = document.querySelector(".chat-header");
-          const chatInfo = header?.querySelector(".chat-info");
-          const toggleBtn = document.querySelector(".chat-window-toggle");
-
-          if (
-            header &&
-            chatInfo &&
-            toggleBtn &&
-            !toggleBtn.classList.contains("toggle-inside")
-          ) {
-            chatInfo.insertAdjacentElement("afterend", toggleBtn);
-            toggleBtn.classList.add("toggle-inside");
-          }
-
-          // 🔹 Aguarda a renderização e foca no input
-          setTimeout(() => {
-            const input = chatWrapper.querySelector(
-              "textarea, input[type='text']"
-            );
-            if (input) {
-              input.focus();
+          if (chatWrapper && toggle) {
+            if (!chatWrapper.classList.contains("is-open")) {
+              toggle.click(); // abre o chat
             } else {
-              console.warn("⚠️ Campo de mensagem não encontrado.");
+              chatWrapper.classList.add("is-open");
             }
-          }, 600);
 
-          console.log("💬 Chat Simon aberto manualmente via CTA.");
+            // foca no campo de mensagem (melhor UX)
+            setTimeout(() => {
+              const input = chatWrapper.querySelector(
+                "textarea, input[type='text']"
+              );
+              if (input) input.focus();
+            }, 400);
+          } else {
+            console.warn("⚠️ Chat do Simon não encontrado para abrir.");
+          }
         });
       }
     }, 1000);
@@ -812,6 +795,70 @@ async function getChatHistory() {
   } catch (e) {
     console.error("❌ Erro ao buscar histórico:", e);
     return [];
+  }
+}
+
+// 🔹 Mostra botões de feedback
+function showFeedbackButtons() {
+
+    console.log("Mostrando botões de feedback...");
+    
+  const container = document.querySelector(".chat-messages-list");
+  if (!container || document.querySelector(".feedback-buttons")) return;
+
+  const div = document.createElement("div");
+  div.className = "feedback-buttons";
+  div.style.cssText =
+    "display:flex;justify-content:center;gap:8px;margin:10px 0;";
+
+  const text = document.createElement("p");
+  text.textContent = "O Simon conseguiu te ajudar?";
+  text.style.cssText =
+    "width:100%;text-align:center;color:#ccc;margin-bottom:5px;";
+
+  const yes = document.createElement("button");
+  yes.textContent = "Sim 😄";
+  yes.style.cssText =
+    "background:#00ffa3;color:#000;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;";
+
+  const no = document.createElement("button");
+  no.textContent = "Não 😕";
+  no.style.cssText =
+    "background:#333;color:#fff;border:none;padding:6px 14px;border-radius:8px;cursor:pointer;font-weight:600;";
+
+  div.append(text, yes, no);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+
+  yes.addEventListener("click", () => sendFeedback("sim"));
+  no.addEventListener("click", () => sendFeedback("nao"));
+}
+
+// 🔹 Envia feedback para o backend
+async function sendFeedback(valor) {
+  const sessionId = localStorage.getItem("customSessionId");
+  const url = window.location.href;
+
+  try {
+    await fetch(
+      "https://primary-2mym-production.up.railway.app/webhook/7137d3d0-a0f2-4616-a0a8-3b688720e31b",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          url,
+          feedback: valor,
+          dataHora: new Date().toISOString(),
+        }),
+      }
+    );
+    const fb = document.querySelector(".feedback-buttons");
+    if (fb)
+      fb.innerHTML = `<p style="color:#00ffa3;text-align:center;">Valeu pelo feedback 💚</p>`;
+    console.log("📝 Feedback enviado:", valor);
+  } catch (e) {
+    console.error("❌ Erro ao enviar feedback:", e);
   }
 }
 
