@@ -329,25 +329,14 @@ function CTA() {
           const chatWrapper = document.querySelector(".chat-window-wrapper");
           const toggle = document.querySelector(".chat-window-toggle");
 
-          if (chatWrapper) {
-            // 🔹 Força a abertura visual do chat
-            chatWrapper.classList.add("is-open");
-
-            // 🔹 Move o botão de toggle para o header, caso não esteja lá
-            const header = document.querySelector(".chat-header");
-            const chatInfo = header?.querySelector(".chat-info");
-            const toggleInside = document.querySelector(".chat-window-toggle");
-            if (
-              header &&
-              chatInfo &&
-              toggleInside &&
-              !toggleInside.classList.contains("toggle-inside")
-            ) {
-              chatInfo.insertAdjacentElement("afterend", toggleInside);
-              toggleInside.classList.add("toggle-inside");
+          if (chatWrapper && toggle) {
+            if (!chatWrapper.classList.contains("is-open")) {
+              toggle.click(); // abre o chat
+            } else {
+              chatWrapper.classList.add("is-open");
             }
 
-            // 🔹 Foca no campo de texto após a abertura
+            // foca no campo de mensagem (melhor UX)
             setTimeout(() => {
               const input = chatWrapper.querySelector(
                 "textarea, input[type='text']"
@@ -811,9 +800,7 @@ async function getChatHistory() {
 function attachFeedbackOnClose() {
   // Aguarda o botão .toggle-inside existir
   const checkButton = setInterval(() => {
-    const toggleBtn = document.querySelector(
-      ".chat-window-toggle.toggle-inside"
-    );
+    const toggleBtn = document.querySelector(".chat-window-toggle.toggle-inside");
     if (!toggleBtn) return;
 
     clearInterval(checkButton);
@@ -832,8 +819,7 @@ function attachFeedbackOnClose() {
           const history = await getChatHistory();
           const temHistorico = Array.isArray(history) && history.length > 0;
           const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
-          const jaFechado =
-            localStorage.getItem("feedbackModalFechado") === "true";
+          const jaFechado = localStorage.getItem("feedbackModalFechado") === "true";
 
           console.log("📜 Histórico encontrado:", temHistorico);
 
@@ -841,9 +827,7 @@ function attachFeedbackOnClose() {
           if (temHistorico && !jaEnviado && !jaFechado) {
             showFeedbackModal();
           } else {
-            console.log(
-              "ℹ️ Nenhum histórico ou feedback já enviado/fechado — nada a fazer."
-            );
+            console.log("ℹ️ Nenhum histórico ou feedback já enviado/fechado — nada a fazer.");
           }
         } catch (err) {
           console.error("❌ Erro ao verificar histórico:", err);
@@ -852,6 +836,7 @@ function attachFeedbackOnClose() {
     });
   }, 300);
 }
+
 
 // ======= MODAL DE FEEDBACK =======
 function showFeedbackModal() {
