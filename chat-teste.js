@@ -29,18 +29,29 @@ let customSessionId = localStorage.getItem("customSessionId");
 let dataHora = localStorage.getItem("dataHora");
 
 // Verifica se já passou de 24h
-const expirou =
-  !dataHora || new Date() - new Date(dataHora) > 24 * 60 * 60 * 1000;
+const agora = new Date();
+const expirou = !dataHora || agora - new Date(dataHora) > 24 * 60 * 60 * 1000;
 
-if (!customSessionId || expirou) {
-  // Gera nova sessão
+// 🔹 Caso tenha passado 24h, limpa sessão e feedback
+if (expirou) {
+  console.log("🕒 Mais de 24h se passaram — limpando sessão e feedback...");
+
+  // Remove dados antigos
+  localStorage.removeItem("feedbackEnviado");
+  localStorage.removeItem("pageSessionData");
+  localStorage.removeItem("customSessionId");
+  localStorage.removeItem("dataHora");
+
+  // Gera nova sessão e data
   customSessionId = crypto.randomUUID();
   localStorage.setItem("customSessionId", customSessionId);
-  localStorage.setItem("dataHora", new Date().toISOString());
-  console.log("🆕 Nova sessão criada:", customSessionId);
+  localStorage.setItem("dataHora", agora.toISOString());
+
+  console.log("🆕 Nova sessão criada após 24h:", customSessionId);
 } else {
   console.log("♻️ Sessão existente:", customSessionId);
 }
+
 
 // Inicializa o chat
 const chat = createChat({
