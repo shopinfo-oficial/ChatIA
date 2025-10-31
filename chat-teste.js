@@ -1,3 +1,4 @@
+
 const linkChatSimon = document.createElement("link");
 linkChatSimon.rel = "stylesheet";
 linkChatSimon.href = "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css";
@@ -790,8 +791,6 @@ async function getChatHistory() {
     // 🔹 Scroll para o fim (pra ver as últimas msgs)
     container.scrollTop = container.scrollHeight;
 
-    setTimeout(showFeedbackButtons, 10000);
-
     return list;
   } catch (e) {
     console.error("❌ Erro ao buscar histórico:", e);
@@ -800,40 +799,45 @@ async function getChatHistory() {
 }
 
 function attachFeedbackOnClose() {
-  const toggleBtn = document.querySelector(".chat-window-toggle.toggle-inside");
-  if (!toggleBtn) {
-    console.warn("⚠️ Botão de fechar chat não encontrado.");
-    return;
-  }
+  // Aguarda o botão .toggle-inside existir
+  const checkButton = setInterval(() => {
+    const toggleBtn = document.querySelector(".chat-window-toggle.toggle-inside");
+    if (!toggleBtn) return;
 
-  toggleBtn.addEventListener("click", async function () {
-    console.log("🧩 Botão de fechar clicado.");
+    clearInterval(checkButton);
+    console.log("✅ Botão de fechar encontrado e listener anexado.");
 
-    // Aguarda o fechamento visual do chat
-    setTimeout(async () => {
-      try {
-        const history = await getChatHistory();
-        const temHistorico = Array.isArray(history) && history.length > 0;
-        const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
-        const jaFechado =
-          localStorage.getItem("feedbackModalFechado") === "true";
+    toggleBtn.addEventListener("click", async function () {
+      console.log("🧩 Botão de fechar clicado.");
 
-        console.log("📜 Histórico encontrado:", temHistorico);
+      // Fecha o chat visualmente
+      const chatWrapper = document.querySelector(".chat-window-wrapper");
+      if (chatWrapper) chatWrapper.classList.remove("is-open");
 
-        // Só abre o modal se houver histórico e não tiver enviado/fechado antes
-        if (temHistorico && !jaEnviado && !jaFechado) {
-          showFeedbackModal();
-        } else {
-          console.log(
-            "ℹ️ Nenhum histórico ou feedback já enviado/fechado — nada a fazer."
-          );
+      // Aguarda um pouquinho antes de verificar o histórico
+      setTimeout(async () => {
+        try {
+          const history = await getChatHistory();
+          const temHistorico = Array.isArray(history) && history.length > 0;
+          const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
+          const jaFechado = localStorage.getItem("feedbackModalFechado") === "true";
+
+          console.log("📜 Histórico encontrado:", temHistorico);
+
+          // Só abre o modal se houver histórico e ainda não foi enviado/fechado
+          if (temHistorico && !jaEnviado && !jaFechado) {
+            showFeedbackModal();
+          } else {
+            console.log("ℹ️ Nenhum histórico ou feedback já enviado/fechado — nada a fazer.");
+          }
+        } catch (err) {
+          console.error("❌ Erro ao verificar histórico:", err);
         }
-      } catch (err) {
-        console.error("❌ Erro ao verificar histórico:", err);
-      }
-    }, 500);
-  });
+      }, 600);
+    });
+  }, 300);
 }
+
 
 // ======= MODAL DE FEEDBACK =======
 function showFeedbackModal() {
