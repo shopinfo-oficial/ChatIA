@@ -22,7 +22,7 @@ const expirou = !dataHora || new Date() - new Date(dataHora) > 864e5;
   ? ((customSessionId = crypto.randomUUID()),
     localStorage.setItem("customSessionId", customSessionId),
     localStorage.setItem("dataHora", new Date().toISOString()),
-    // NOVO: Limpa o feedback ao expirar a sessão
+    // ADICIONADO: Limpa o feedback antigo ao expirar a sessão
     localStorage.removeItem("feedbackEnviado"),
     console.log("🆕 Nova sessão criada:", customSessionId))
   : console.log("♻️ Sessão existente:", customSessionId);
@@ -42,7 +42,7 @@ const chat = createChat({
 });
 
 // ===================================
-// LÓGICA DO MODAL DE FEEDBACK (NOVA)
+// LÓGICA DO MODAL DE FEEDBACK (ADICIONADA)
 // ===================================
 
 // 🔹 Envia feedback para o backend
@@ -50,12 +50,12 @@ async function sendFeedback(valor) {
   const sessionId = localStorage.getItem("customSessionId");
   const url = window.location.href;
 
-  // Regra: Marca como 'false' antes de enviar, e 'true' apenas se o envio for bem-sucedido.
   localStorage.setItem("feedbackEnviado", "false"); 
 
   try {
     await fetch(
-      "https://primary-2mym-production.up.railway.app/webhook/7137d3d0-a0f2-4616-a0a8-3b688720e31b", // Rota de Feedback
+      // Rota de Feedback (NOVA ROTA)
+      "https://primary-2mym-production.up.railway.app/webhook/7137d3d0-a0f2-4616-a0a8-3b688720e31b", 
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,12 +76,10 @@ async function sendFeedback(valor) {
   }
 }
 
-
 // ======= MODAL DE FEEDBACK =======
 function showFeedbackModal() {
   console.log("🟢 Abrindo modal de feedback...");
 
-  // Criação do Backdrop e Modal
   const backdrop = document.createElement("div");
   backdrop.style.cssText = `
     position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
@@ -99,7 +97,6 @@ function showFeedbackModal() {
     font-family: 'Roboto', sans-serif;
   `;
 
-  // Conteúdo do Modal
   const closeBtn = document.createElement("button");
   closeBtn.innerHTML = "✖";
   closeBtn.style.cssText = `
@@ -143,9 +140,7 @@ function showFeedbackModal() {
   btnContainer.append(btnSim, btnNao);
   modal.append(closeBtn, title, desc, btnContainer);
   backdrop.appendChild(modal);
-  document.body.appendChild(backdrop);
 
-  // Animações CSS
   const style = document.createElement("style");
   style.textContent = `
     @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
@@ -154,7 +149,6 @@ function showFeedbackModal() {
   `;
   document.head.appendChild(style);
 
-  // Função de Agradecimento
   function mostrarAgradecimento(texto) {
     modal.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn 0.4s ease;">
@@ -171,7 +165,6 @@ function showFeedbackModal() {
     }, 1600);
   }
 
-  // Fechar e Eventos de Botão
   function fecharModal() {
     modal.style.animation = "fadeOut 0.3s ease forwards";
     backdrop.style.animation = "fadeOut 0.3s ease forwards";
@@ -196,8 +189,10 @@ function showFeedbackModal() {
     mostrarAgradecimento("Feedback recebido 💪");
   });
 }
-
 // ===================================
+// FIM DA LÓGICA DO MODAL
+// ===================================
+
 
 function initializeChatUI() {
   const e = document.querySelector(".chat-window-wrapper"),
@@ -225,10 +220,12 @@ function initializeChatUI() {
       (t.innerHTML =
         '\n                            <svg viewBox="0 0 24 24" width="32" height="32">\n                                <path fill="currentColor" d="M12 3c5.5 0 10 3.58 10 8s-4.5 8-10 8c-1.24 0-2.43-.18-3.53-.5C5.55 21 2 21 2 21c2.33-2.33 2.7-3.9 2.75-4.5C3.05 15.07 2 13.13 2 11c0-4.42 4.5-8 10-8"></path>\n                            </svg>\n                            '));
   }
+  
+  // Função i() (Fechar Chat) - MODIFICADA
   function i() {
     e.classList.remove("is-open"), a();
-
-    // NOVO: Lógica para abrir o modal de feedback após fechar o chat
+    
+    // ADICIONADO: Lógica para chamar o modal ao fechar
     setTimeout(async () => {
       try {
         const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
@@ -236,8 +233,7 @@ function initializeChatUI() {
           console.log("✅ Feedback já enviado — modal não será exibido.");
           return;
         }
-        // Busca histórico SEM renderizar para checar se houve conversa
-        const history = await getChatHistory(true); 
+        const history = await getChatHistory(true); // Chama com 'onlyFetch = true'
         const temHistorico = Array.isArray(history) && history.length > 0;
 
         if (temHistorico) {
@@ -249,9 +245,9 @@ function initializeChatUI() {
       } catch (err) {
         console.error("❌ Erro ao verificar histórico para feedback:", err);
       }
-    }, 400);
+    }, 400); // Espera a animação de fechar
   }
-
+  
   t.parentElement && t.parentElement.insertBefore(o, t.nextSibling),
     t.addEventListener("click", function () {
       e.classList.contains("is-open") ? i() : (e.classList.add("is-open"), r());
@@ -299,6 +295,8 @@ function initializeChatUI() {
         );
     })();
 }
+
+// CTA (ORIGINAL V1 - ESTILO CORRETO)
 function CTA() {
   function e(e) {
     const t = document.createElement("div");
@@ -417,7 +415,7 @@ function getProductInfo() {
               (e.currency = t.offers?.priceCurrency || e.currency),
               (e.availability = t.offers?.availability || e.availability),
               (e.rating = t.aggregateRating?.ratingValue || e.rating),
-              (e.reviewCount =
+_               (e.reviewCount =
                 t.aggregateRating?.reviewCount || e.reviewCount));
           });
     } catch {}
@@ -516,6 +514,7 @@ function getProductInfo() {
   return console.log("📦 Produto detectado:", e), e;
 }
 async function sendProductToBackend(e, t) {
+source_code
   const n = localStorage.getItem("customSessionId"),
     o = localStorage.getItem("dataHora"),
     r = window.location.href,
@@ -547,7 +546,7 @@ function getOnlyTextFromBody() {
       NodeFilter.SHOW_TEXT,
       {
         acceptNode: function (e) {
-          if (!e.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+A           if (!e.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
           const t = e.parentNode.tagName?.toLowerCase();
           return ["script", "style", "noscript"].includes(t)
             ? NodeFilter.FILTER_REJECT
@@ -561,6 +560,8 @@ function getOnlyTextFromBody() {
   let o = n.join(" ");
   return (o = o.replace(/\s+/g, " ").trim()), o;
 }
+
+// getChatHistory() - MODIFICADO
 async function getChatHistory(onlyFetch = false) { // Adicionado parâmetro 'onlyFetch'
   function e(e, t) {
     var n = document.createElement(e);
@@ -579,6 +580,7 @@ async function getChatHistory(onlyFetch = false) { // Adicionado parâmetro 'onl
       r.setAttribute("data-history", "1");
     var a = e("div", "chat-message-actions");
     r.appendChild(a);
+source_code
     var i = e("div", "chat-message-markdown"),
       c = e("p", "");
     return (c.textContent = o || ""), i.appendChild(c), r.appendChild(i), r;
@@ -596,16 +598,16 @@ async function getChatHistory(onlyFetch = false) { // Adicionado parâmetro 'onl
   try {
     var a = await fetch(
       "https://primary-2mym-production.up.railway.app/webhook/62893aca-28f9-4d92-8a89-4c20d55b310e?sessionId=" +
-        encodeURIComponent(r)
+D         encodeURIComponent(r)
     );
     if (!a.ok) throw new Error("HTTP " + a.status);
     var i = await a.json(),
       c = Array.isArray(i) ? i[0] && i[0].history : i && i.history;
     if (!Array.isArray(c) || !c.length) return [];
-    
-    // NOVO: Retorna o histórico sem renderizar se for para checagem do modal
-    if (onlyFetch) return c;
 
+    // ADICIONADO: Retorna os dados p/ o modal sem renderizar
+    if (onlyFetch) return c; 
+    
 
     // ✅ inverte só o histórico antes de renderizar (do mais antigo para o mais novo)
     var s = c.slice().reverse();
@@ -617,7 +619,7 @@ async function getChatHistory(onlyFetch = false) { // Adicionado parâmetro 'onl
     for (var l = !1, m = 0; m < s.length; m++) {
       var p = s[m] || {},
         u = null != p.Q ? String(p.Q) : "",
-        g = null != p.A ? String(p.A) : "";
+i         g = null != p.A ? String(p.A) : "";
       if ((u && !o(d, "user", u)) || (g && !o(d, "bot", g))) {
         l = !0;
         break;
@@ -636,7 +638,7 @@ async function getChatHistory(onlyFetch = false) { // Adicionado parâmetro 'onl
     return s;
   } catch (e) {
     return console.error("❌ Erro ao buscar histórico:", e), [];
-  }
+f }
 }
 function managePageSession() {
   const e = window.location.href,
@@ -649,7 +651,7 @@ function managePageSession() {
       void localStorage.removeItem(t)
     );
   if (n[e]) console.log("♻️ ID existente para esta página:", n[e].id);
-  else {
+O   else {
     const r = crypto.randomUUID();
     (n[e] = { id: r, dataHora: o }),
       localStorage.setItem(t, JSON.stringify(n)),
