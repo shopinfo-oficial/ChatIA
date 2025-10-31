@@ -197,8 +197,6 @@ function initializeChatUI() {
         "Erro: Não foi possível encontrar a imagem ou o nome do produto."
       );
     }
-
-    attachFeedbackOnClose();
   }
 
   // Função para adicionar uma mensagem de boas-vindas ao corpo do chat
@@ -327,25 +325,43 @@ function CTA() {
       if (btn) {
         btn.addEventListener("click", function () {
           const chatWrapper = document.querySelector(".chat-window-wrapper");
-          const toggle = document.querySelector(".chat-window-toggle");
 
-          if (chatWrapper && toggle) {
-            if (!chatWrapper.classList.contains("is-open")) {
-              toggle.click(); // abre o chat
-            } else {
-              chatWrapper.classList.add("is-open");
-            }
-
-            // foca no campo de mensagem (melhor UX)
-            setTimeout(() => {
-              const input = chatWrapper.querySelector(
-                "textarea, input[type='text']"
-              );
-              if (input) input.focus();
-            }, 400);
-          } else {
-            console.warn("⚠️ Chat do Simon não encontrado para abrir.");
+          if (!chatWrapper) {
+            console.warn("⚠️ Chat ainda não foi inicializado.");
+            return;
           }
+
+          // 🔹 Força abertura do chat
+          chatWrapper.classList.add("is-open");
+
+          // 🔹 Move o botão toggle pro header, se não estiver
+          const header = document.querySelector(".chat-header");
+          const chatInfo = header?.querySelector(".chat-info");
+          const toggleBtn = document.querySelector(".chat-window-toggle");
+
+          if (
+            header &&
+            chatInfo &&
+            toggleBtn &&
+            !toggleBtn.classList.contains("toggle-inside")
+          ) {
+            chatInfo.insertAdjacentElement("afterend", toggleBtn);
+            toggleBtn.classList.add("toggle-inside");
+          }
+
+          // 🔹 Aguarda a renderização e foca no input
+          setTimeout(() => {
+            const input = chatWrapper.querySelector(
+              "textarea, input[type='text']"
+            );
+            if (input) {
+              input.focus();
+            } else {
+              console.warn("⚠️ Campo de mensagem não encontrado.");
+            }
+          }, 600);
+
+          console.log("💬 Chat Simon aberto manualmente via CTA.");
         });
       }
     }, 1000);
@@ -790,178 +806,12 @@ async function getChatHistory() {
     // 🔹 Scroll para o fim (pra ver as últimas msgs)
     container.scrollTop = container.scrollHeight;
 
+    setTimeout(showFeedbackButtons, 10000);
+
     return list;
   } catch (e) {
     console.error("❌ Erro ao buscar histórico:", e);
     return [];
-  }
-}
-
-function attachFeedbackOnClose() {
-  // Aguarda o botão .toggle-inside existir
-  const checkButton = setInterval(() => {
-    const toggleBtn = document.querySelector(".chat-window-toggle.toggle-inside");
-    if (!toggleBtn) return;
-
-    clearInterval(checkButton);
-    console.log("✅ Botão de fechar encontrado e listener anexado.");
-
-    toggleBtn.addEventListener("click", async function () {
-      console.log("🧩 Botão de fechar clicado.");
-
-      // Fecha o chat visualmente
-      const chatWrapper = document.querySelector(".chat-window-wrapper");
-      if (chatWrapper) chatWrapper.classList.remove("is-open");
-
-      // Aguarda um pouquinho antes de verificar o histórico
-      setTimeout(async () => {
-        try {
-          const history = await getChatHistory();
-          const temHistorico = Array.isArray(history) && history.length > 0;
-          const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
-          const jaFechado = localStorage.getItem("feedbackModalFechado") === "true";
-
-          console.log("📜 Histórico encontrado:", temHistorico);
-
-          // Só abre o modal se houver histórico e ainda não foi enviado/fechado
-          if (temHistorico && !jaEnviado && !jaFechado) {
-            showFeedbackModal();
-          } else {
-            console.log("ℹ️ Nenhum histórico ou feedback já enviado/fechado — nada a fazer.");
-          }
-        } catch (err) {
-          console.error("❌ Erro ao verificar histórico:", err);
-        }
-      }, 600);
-    });
-  }, 300);
-}
-
-
-// ======= MODAL DE FEEDBACK =======
-function showFeedbackModal() {
-  console.log("🟢 Abrindo modal de feedback...");
-
-  const backdrop = document.createElement("div");
-  backdrop.style.cssText = `
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  `;
-
-  const modal = document.createElement("div");
-  modal.style.cssText = `
-    background: #1a1a1a;
-    color: #fff;
-    padding: 20px 25px;
-    border-radius: 10px;
-    text-align: center;
-    max-width: 320px;
-    width: 90%;
-    box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    position: relative;
-    animation: fadeIn .3s ease;
-  `;
-
-  const closeBtn = document.createElement("button");
-  closeBtn.innerHTML = "✖";
-  closeBtn.style.cssText = `
-    position: absolute;
-    top: 10px; right: 10px;
-    background: none;
-    border: none;
-    color: #999;
-    font-size: 18px;
-    cursor: pointer;
-  `;
-
-  const title = document.createElement("h3");
-  title.textContent = "O Simon conseguiu te ajudar?";
-  title.style.marginBottom = "15px";
-
-  const btnSim = document.createElement("button");
-  btnSim.textContent = "Sim 😄";
-  btnSim.style.cssText = `
-    background:#00ffa3;
-    color:#000;
-    border:none;
-    padding:8px 16px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-    margin-right:8px;
-  `;
-
-  const btnNao = document.createElement("button");
-  btnNao.textContent = "Não 😕";
-  btnNao.style.cssText = `
-    background:#333;
-    color:#fff;
-    border:none;
-    padding:8px 16px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-  `;
-
-  modal.append(closeBtn, title, btnSim, btnNao);
-  backdrop.appendChild(modal);
-  document.body.appendChild(backdrop);
-
-  // Fechar modal
-  function fecharModalManual() {
-    document.body.removeChild(backdrop);
-    localStorage.setItem("feedbackModalFechado", "true");
-    console.log("❌ Modal fechado manualmente (sem feedback).");
-  }
-
-  closeBtn.addEventListener("click", fecharModalManual);
-  backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) fecharModalManual();
-  });
-
-  // Botões de feedback
-  btnSim.addEventListener("click", async () => {
-    await sendFeedback("sim");
-    document.body.removeChild(backdrop);
-  });
-
-  btnNao.addEventListener("click", async () => {
-    await sendFeedback("nao");
-    document.body.removeChild(backdrop);
-  });
-}
-
-// ======= ENVIO DE FEEDBACK =======
-async function sendFeedback(valor) {
-  const sessionId = localStorage.getItem("customSessionId");
-  const url = window.location.href;
-
-  localStorage.setItem("feedbackEnviado", "false");
-
-  try {
-    await fetch(
-      "https://primary-2mym-production.up.railway.app/webhook/7137d3d0-a0f2-4616-a0a8-3b688720e31b",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionId,
-          url,
-          feedback: valor,
-          dataHora: new Date().toISOString(),
-        }),
-      }
-    );
-
-    localStorage.setItem("feedbackEnviado", "true");
-  } catch (e) {
-    localStorage.setItem("feedbackEnviado", "false");
   }
 }
 
