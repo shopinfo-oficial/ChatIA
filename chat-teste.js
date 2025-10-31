@@ -840,99 +840,185 @@ async function getChatHistory() {
 function showFeedbackModal() {
   console.log("🟢 Abrindo modal de feedback...");
 
+  // ======= BACKDROP =======
   const backdrop = document.createElement("div");
   backdrop.style.cssText = `
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(6px);
+    background: rgba(0,0,0,0.65);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 9999;
+    animation: fadeIn 0.3s ease forwards;
   `;
 
+  // ======= MODAL =======
   const modal = document.createElement("div");
   modal.style.cssText = `
-    background: #1a1a1a;
+    background: radial-gradient(circle at top, #202020 0%, #0e0e0e 100%);
+    border: 1px solid rgba(255,255,255,0.1);
     color: #fff;
-    padding: 20px 25px;
-    border-radius: 10px;
+    padding: 28px 30px 25px;
+    border-radius: 14px;
     text-align: center;
-    max-width: 320px;
-    width: 90%;
-    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    max-width: 360px;
+    width: 92%;
+    box-shadow: 0 0 18px rgba(0,255,163,0.3);
     position: relative;
-    animation: fadeIn .3s ease;
+    transform: scale(0.9);
+    opacity: 0;
+    animation: popIn 0.35s ease forwards;
+    font-family: 'Roboto', sans-serif;
   `;
 
+  // ======= BOTÃO FECHAR =======
   const closeBtn = document.createElement("button");
   closeBtn.innerHTML = "✖";
   closeBtn.style.cssText = `
     position: absolute;
-    top: 10px; right: 10px;
+    top: 12px; right: 14px;
     background: none;
     border: none;
-    color: #999;
-    font-size: 18px;
+    color: #888;
+    font-size: 20px;
     cursor: pointer;
+    transition: color 0.2s ease;
   `;
+  closeBtn.onmouseenter = () => (closeBtn.style.color = "#fff");
+  closeBtn.onmouseleave = () => (closeBtn.style.color = "#888");
 
+  // ======= TÍTULO =======
   const title = document.createElement("h3");
   title.textContent = "O Simon conseguiu te ajudar?";
-  title.style.marginBottom = "15px";
+  title.style.cssText = `
+    margin-bottom: 18px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  `;
+
+  // ======= DESCRIÇÃO =======
+  const desc = document.createElement("p");
+  desc.textContent = "Sua opinião ajuda a deixar o Simon cada vez mais afiado ⚡";
+  desc.style.cssText = `
+    color: #aaa;
+    font-size: 14px;
+    margin-bottom: 24px;
+    line-height: 1.4;
+  `;
+
+  // ======= BOTÕES =======
+  const btnContainer = document.createElement("div");
+  btnContainer.style.cssText = `
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  `;
 
   const btnSim = document.createElement("button");
   btnSim.textContent = "Sim 😄";
   btnSim.style.cssText = `
-    background:#00ffa3;
-    color:#000;
-    border:none;
-    padding:8px 16px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-    margin-right:8px;
+    background: linear-gradient(90deg,#00ffa3,#00c0ff);
+    color: #000;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.25s ease;
+    box-shadow: 0 0 10px rgba(0,255,170,0.4);
   `;
+  btnSim.onmouseenter = () => (btnSim.style.filter = "brightness(1.2)");
+  btnSim.onmouseleave = () => (btnSim.style.filter = "brightness(1)");
 
   const btnNao = document.createElement("button");
   btnNao.textContent = "Não 😕";
   btnNao.style.cssText = `
-    background:#333;
-    color:#fff;
-    border:none;
-    padding:8px 16px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
+    background: linear-gradient(90deg,#ff4d4d,#a80000);
+    color: #fff;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.25s ease;
+    box-shadow: 0 0 10px rgba(255,0,0,0.3);
   `;
+  btnNao.onmouseenter = () => (btnNao.style.filter = "brightness(1.2)");
+  btnNao.onmouseleave = () => (btnNao.style.filter = "brightness(1)");
 
-  modal.append(closeBtn, title, btnSim, btnNao);
+  btnContainer.append(btnSim, btnNao);
+
+  // ======= INSERE ELEMENTOS =======
+  modal.append(closeBtn, title, desc, btnContainer);
   backdrop.appendChild(modal);
   document.body.appendChild(backdrop);
 
-  // Fechar modal manualmente
-  function fecharModalManual() {
-    document.body.removeChild(backdrop);
-    localStorage.setItem("feedbackModalFechado", "true");
-    console.log("❌ Modal fechado manualmente (sem feedback).");
+  // ======= ANIMAÇÕES =======
+  const style = document.createElement("style");
+  style.textContent = `
+    @keyframes fadeIn {
+      from {opacity:0;} to {opacity:1;}
+    }
+    @keyframes popIn {
+      from {opacity:0; transform:scale(0.85);}
+      to {opacity:1; transform:scale(1);}
+    }
+    @keyframes fadeOut {
+      from {opacity:1; transform:scale(1);}
+      to {opacity:0; transform:scale(0.9);}
+    }
+  `;
+  document.head.appendChild(style);
+
+  // ======= FECHAR MANUALMENTE =======
+  function fecharModal() {
+    modal.style.animation = "fadeOut 0.3s ease forwards";
+    backdrop.style.animation = "fadeOut 0.3s ease forwards";
+    setTimeout(() => {
+      document.body.removeChild(backdrop);
+      localStorage.setItem("feedbackModalFechado", "true");
+      console.log("❌ Modal fechado sem feedback.");
+    }, 250);
   }
 
-  closeBtn.addEventListener("click", fecharModalManual);
+  closeBtn.addEventListener("click", fecharModal);
   backdrop.addEventListener("click", (e) => {
-    if (e.target === backdrop) fecharModalManual();
+    if (e.target === backdrop) fecharModal();
   });
 
-  // Botões de feedback
+  // ======= BOTÕES =======
   btnSim.addEventListener("click", async () => {
     await sendFeedback("sim");
-    document.body.removeChild(backdrop);
+    mostrarAgradecimento("Valeu pelo feedback 💚");
   });
 
   btnNao.addEventListener("click", async () => {
     await sendFeedback("nao");
-    document.body.removeChild(backdrop);
+    mostrarAgradecimento("Feedback recebido 💪");
   });
+
+  // ======= FUNÇÃO DE AGRADECIMENTO =======
+  function mostrarAgradecimento(texto) {
+    modal.innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn 0.4s ease;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="56" height="56" fill="#00ffa3" viewBox="0 0 24 24">
+          <path d="M12 0C5.372 0 0 5.373 0 12c0 6.628 5.372 12 12 12s12-5.372 12-12C24 5.373 18.628 0 12 0zM10.146 17.854l-4.146-4.146 1.414-1.414 2.732 2.732 7.586-7.586 1.414 1.414-9 9z"/>
+        </svg>
+        <h3 style="margin-top:16px;font-size:17px;">${texto}</h3>
+      </div>
+    `;
+    setTimeout(() => {
+      modal.style.animation = "fadeOut 0.4s ease forwards";
+      backdrop.style.animation = "fadeOut 0.4s ease forwards";
+      setTimeout(() => document.body.removeChild(backdrop), 400);
+    }, 1600);
+  }
 }
 
 
