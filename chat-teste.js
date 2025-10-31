@@ -1,3 +1,4 @@
+```javascript
 const linkChatSimon = document.createElement("link");
 linkChatSimon.rel = "stylesheet";
 linkChatSimon.href = "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css";
@@ -285,91 +286,92 @@ function initializeChatUI() {
 initializeChatUI();
 
 function CTA() {
-  function e(e) {
-    const t = document.createElement("div");
-    return (
-      (t.id = "simon-help-box"),
-      (t.style.cssText = `\n      display:flex;\n      justify-content:center;\n      margin-top:${
-        e ? "20px" : "60px"
-      };\n      margin-bottom:10px;\n      width:100%;\n      animation:fadeIn .4s ease;\n    `),
-      (t.innerHTML = `\n      <section style="\n        background:linear-gradient(145deg,#0f0f0f,#1a1a1a);\n        border:1px solid rgba(0,255,170,0.25);\n        box-shadow:0 0 15px rgba(0,255,170,0.15);\n        border-radius:10px;\n        padding:${
-        e ? "16px" : "20px"
-      };\n        color:#ddd;\n        max-width:${
-        e ? "95%" : "720px"
-      };\n        text-align:center;\n        font-family:'Roboto',sans-serif;\n      ">\n        <h3 style="\n          color:#00ffa3;\n          font-size:${
-        e ? "16px" : "18px"
-      };\n          font-weight:700;\n          display:flex;\n          align-items:center;\n          justify-content:center;\n          gap:8px;\n          margin-bottom:10px;\n        ">\n          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png"\n               width="${
-        e ? "22" : "24"
-      }"\n               height="${
-        e ? "22" : "24"
-      }"\n               alt="Simon"\n               style="filter:brightness(0) invert(1);">\n          Precisa de ajuda para decidir?\n        </h3>\n        <p style="\n          font-size:${
-        e ? "14px" : "15px"
-      };\n          color:#bbb;\n          margin-bottom:${
-        e ? "14px" : "18px"
-      };\n        ">\n          Descubra em segundos se este produto é ideal para você!\n        </p>\n        <button id="btn-open-simon-chat" style="\n          background:linear-gradient(90deg,#00ffa3,#00c0ff);\n          color:#000;\n          border:none;\n          border-radius:8px;\n          padding:${
-        e ? "10px 20px" : "12px 24px"
-      };\n          font-weight:700;\n          cursor:pointer;\n          font-size:${
-        e ? "15px" : "16px"
-      };\n          box-shadow:0 0 12px rgba(0,255,170,0.4);\n          transition:all .3s ease;\n        " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">\n          💬 Falar com o Simon\n        </button>\n      </section>\n\n      <style>\n        @keyframes fadeIn {\n          from {opacity:0;transform:translateY(10px);}\n          to {opacity:1;transform:translateY(0);}\n        }\n      </style>\n    `),
-      setTimeout(() => {
-        const e = t.querySelector("#btn-open-simon-chat");
-        e &&
-          e.addEventListener("click", function () {
-            const e = document.querySelector(".chat-window-wrapper"),
-              t = document.querySelector(".chat-window-toggle");
-            e && t
-              ? (e.classList.contains("is-open")
-                  ? e.classList.add("is-open")
-                  : t.click(),
-                setTimeout(() => {
-                  const t = e.querySelector("textarea, input[type='text']");
-                  t && t.focus();
-                }, 400))
-              : console.warn("⚠️ Chat do Simon não encontrado para abrir.");
-          });
-      }, 1e3),
-      t
-    );
-  }
-  const t = window.innerWidth <= 768,
-    n = setInterval(() => {
-      !t &&
-        document.querySelector(".productDescription-hexagon.mobile-notshow") &&
-        (!(function () {
-          const t = document.querySelector(
-            ".productDescription-hexagon.mobile-notshow"
-          );
-          if (!t || document.querySelector("#simon-help-box")) return;
-          const n = document.createElement("div");
-          (n.className = "productDescription-hexagon mobile-notshow"),
-            (n.style.top = "528px");
-          const o = e(!1);
-          n.appendChild(o),
-            t.insertAdjacentElement("afterend", n),
-            console.log(
-              "🖥️ CTA Simon adicionado no desktop dentro de nova div .productDescription-hexagon."
-            );
-          const r = document.createElement("style");
-          (r.textContent =
-            "\n      .product__wrapper.product__single {\n        margin-bottom: 180px !important;\n      }\n    "),
-            document.head.appendChild(r);
-        })(),
-        clearInterval(n)),
-        t &&
-          document.querySelector(".buy-button-ref") &&
-          (!(function () {
-            const t = document.querySelector(".product__info--sku"),
-              n = document.querySelector(".buy-button-ref");
-            if (!t || !n || document.querySelector("#simon-help-box")) return;
-            const o = e(!0);
-            n.parentElement.insertAdjacentElement("afterend", o),
-              console.log(
-                "📱 CTA Simon adicionado abaixo do botão Comprar (mobile)."
-              );
-          })(),
-          clearInterval(n));
-    }, 500);
+  function e(e) {
+    const t = document.createElement("div");
+    return (
+      (t.id = "simon-help-box"),
+      (t.style.cssText = `\n      display:flex;\n      justify-content:center;\n      margin-top:${
+        e ? "20px" : "60px"
+      };\n      margin-bottom:10px;\n      width:100%;\n      animation:fadeIn .4s ease;\n    `),
+      (t.innerHTML = `\n      <section style="\n        background:linear-gradient(145deg,#0f0f0f,#1a1a1a);\n        border:1px solid rgba(0,255,170,0.25);\n        box-shadow:0 0 15px rgba(0,255,170,0.15);\n        border-radius:10px;\n        padding:${
+        e ? "16px" : "20px"
+      };\n        color:#ddd;\n        max-width:${
+        e ? "95%" : "720px"
+      };\n        text-align:center;\n        font-family:'Roboto',sans-serif;\n      ">\n        <h3 style="\n          color:#00ffa3;\n          font-size:${
+        e ? "16px" : "18px"
+      };\n          font-weight:700;\n          display:flex;\n          align-items:center;\n          justify-content:center;\n          gap:8px;\n          margin-bottom:10px;\n        ">\n          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png"\n               width="${
+        e ? "22" : "24"
+      }"\n               height="${
+        e ? "22" : "24"
+      }"\n               alt="Simon"\n               style="filter:brightness(0) invert(1);">\n          Precisa de ajuda para decidir?\n        </h3>\n        <p style="\n          font-size:${
+        e ? "14px" : "15px"
+      };\n          color:#bbb;\n          margin-bottom:${
+        e ? "14px" : "18px"
+      };\n        ">\n          Descubra em segundos se este produto é ideal para você!\n        </p>\n        <button id="btn-open-simon-chat" style="\n          background:linear-gradient(90deg,#00ffa3,#00c0ff);\n          color:#000;\n          border:none;\n          border-radius:8px;\n          padding:${
+        e ? "10px 20px" : "12px 24px"
+      };\n          font-weight:700;\n          cursor:pointer;\n          font-size:${
+        e ? "15px" : "16px"
+      };\n          box-shadow:0 0 12px rgba(0,255,170,0.4);\n          transition:all .3s ease;\n        " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">\n          💬 Falar com o Simon\n        </button>\n      </section>\n\n      <style>\n        @keyframes fadeIn {\n          from {opacity:0;transform:translateY(10px);}\n          to {opacity:1;transform:translateY(0);}\n        }\n      </style>\n    `),
+      setTimeout(() => {
+        const e = t.querySelector("#btn-open-simon-chat");
+        e &&
+          e.addEventListener("click", function () {
+            const e = document.querySelector(".chat-window-wrapper"),
+              t = document.querySelector(".chat-window-toggle");
+            e && t
+              ? (e.classList.contains("is-open")
+                  ? e.classList.add("is-open")
+                  : t.click(),
+                setTimeout(() => {
+                  const t = e.querySelector("textarea, input[type='text']");
+                  t && t.focus();
+                }, 400))
+              : console.warn("⚠️ Chat do Simon não encontrado para abrir.");
+          });
+      }, 1e3),
+      t
+    );
+  }
+  const t = window.innerWidth <= 768,
+    n = setInterval(() => {
+      !t &&
+        document.querySelector(".productDescription-hexagon.mobile-notshow") &&
+        (!(function () {
+          const t = document.querySelector(
+            ".productDescription-hexagon.mobile-notshow"
+          );
+          if (!t || document.querySelector("#simon-help-box")) return;
+          const n = document.createElement("div");
+          (n.className = "productDescription-hexagon mobile-notshow"),
+            (n.style.top = "528px");
+          const o = e(!1);
+          n.appendChild(o),
+            t.insertAdjacentElement("afterend", n),
+            console.log(
+              "🖥️ CTA Simon adicionado no desktop dentro de nova div .productDescription-hexagon."
+            );
+          const r = document.createElement("style");
+          (r.textContent =
+            "\n      .product__wrapper.product__single {\n        margin-bottom: 180px !important;\n      }\n    "),
+            document.head.appendChild(r);
+        })(),
+        clearInterval(n)),
+        t &&
+          document.querySelector(".buy-button-ref") &&
+          (!(function () {
+            const t = document.querySelector(".product__info--sku"),
+              n = document.querySelector(".buy-button-ref");
+            if (!t || !n || document.querySelector("#simon-help-box")) return;
+            const o = e(!0);
+            n.parentElement.insertAdjacentElement("afterend", o),
+              console.log(
+                "📱 CTA Simon adicionado abaixo do botão Comprar (mobile)."
+              );
+          })(),
+          clearInterval(n));
+    }, 500);
 }
+
 CTA();
 
 function getProductInfo() {
@@ -1023,3 +1025,4 @@ setTimeout(() => {
 setTimeout(() => {
   getChatHistory();
 }, 2000);
+```
