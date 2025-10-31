@@ -8,7 +8,7 @@ const scriptJsonLd = document.createElement("script");
   document.head.appendChild(scriptJsonLd),
   document.body.insertAdjacentHTML(
     "beforeend",
-    '\n            <div class="chatbot-assistant-ia">\n                <div id="simon-chat"></div>\n            </div>\n        '
+    '\n            <div class="chatbot-assistant-ia">\n                <div id="simon-chat"></div>\n            </div>\n        '
   ),
   document.head.insertAdjacentHTML(
     "beforeend",
@@ -17,15 +17,13 @@ const scriptJsonLd = document.createElement("script");
 import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js";
 let customSessionId = localStorage.getItem("customSessionId"),
   dataHora = localStorage.getItem("dataHora");
-// 864e5 = 24 * 60 * 60 * 1000 milissegundos
 const expirou = !dataHora || new Date() - new Date(dataHora) > 864e5;
 !customSessionId || expirou
   ? ((customSessionId = crypto.randomUUID()),
     localStorage.setItem("customSessionId", customSessionId),
     localStorage.setItem("dataHora", new Date().toISOString()),
-    // Limpa feedback antigo, já que a sessão expirou
+    // NOVO: Limpa o feedback ao expirar a sessão
     localStorage.removeItem("feedbackEnviado"),
-    localStorage.removeItem("pageSessionData"),
     console.log("🆕 Nova sessão criada:", customSessionId))
   : console.log("♻️ Sessão existente:", customSessionId);
 const chat = createChat({
@@ -43,21 +41,21 @@ const chat = createChat({
   i18n: { en: { inputPlaceholder: "Digite sua mensagem..." } },
 });
 
-// ------------------------------------------
-// Funções Adicionadas para o Modal de Feedback
-// ------------------------------------------
+// ===================================
+// LÓGICA DO MODAL DE FEEDBACK (NOVA)
+// ===================================
 
 // 🔹 Envia feedback para o backend
 async function sendFeedback(valor) {
   const sessionId = localStorage.getItem("customSessionId");
   const url = window.location.href;
 
-  // Marca feedback como NÃO enviado antes de tentar, para ser true só após sucesso
+  // Regra: Marca como 'false' antes de enviar, e 'true' apenas se o envio for bem-sucedido.
   localStorage.setItem("feedbackEnviado", "false"); 
 
   try {
     await fetch(
-      "https://primary-2mym-production.up.railway.app/webhook/7137d3d0-a0f2-4616-a0a8-3b688720e31b",
+      "https://primary-2mym-production.up.railway.app/webhook/7137d3d0-a0f2-4616-a0a8-3b688720e31b", // Rota de Feedback
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -74,7 +72,7 @@ async function sendFeedback(valor) {
     console.log("📝 Feedback enviado:", valor);
   } catch (e) {
     console.error("❌ Erro ao enviar feedback:", e);
-    localStorage.setItem("feedbackEnviado", "false"); // Mantém false se falhar
+    localStorage.setItem("feedbackEnviado", "false");
   }
 }
 
@@ -83,36 +81,21 @@ async function sendFeedback(valor) {
 function showFeedbackModal() {
   console.log("🟢 Abrindo modal de feedback...");
 
-  // ======= BACKDROP e MODAL CSS (MANTIDO DO V2) =======
+  // Criação do Backdrop e Modal
   const backdrop = document.createElement("div");
   backdrop.style.cssText = `
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    backdrop-filter: blur(6px);
-    background: rgba(0,0,0,0.65);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    animation: fadeIn 0.3s ease forwards;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    backdrop-filter: blur(6px); background: rgba(0,0,0,0.65);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999; animation: fadeIn 0.3s ease forwards;
   `;
-
   const modal = document.createElement("div");
   modal.style.cssText = `
     background: radial-gradient(circle at top, #202020 0%, #0e0e0e 100%);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #fff;
-    padding: 28px 30px 25px;
-    border-radius: 14px;
-    text-align: center;
-    max-width: 360px;
-    width: 92%;
-    box-shadow: 0 0 18px rgba(0,255,163,0.3);
-    position: relative;
-    transform: scale(0.9);
-    opacity: 0;
-    animation: popIn 0.35s ease forwards;
+    border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 28px 30px 25px;
+    border-radius: 14px; text-align: center; max-width: 360px; width: 92%;
+    box-shadow: 0 0 18px rgba(0,255,163,0.3); position: relative;
+    transform: scale(0.9); opacity: 0; animation: popIn 0.35s ease forwards;
     font-family: 'Roboto', sans-serif;
   `;
 
@@ -162,7 +145,7 @@ function showFeedbackModal() {
   backdrop.appendChild(modal);
   document.body.appendChild(backdrop);
 
-  // ======= ANIMAÇÕES CSS (MANTIDO DO V2) =======
+  // Animações CSS
   const style = document.createElement("style");
   style.textContent = `
     @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
@@ -171,7 +154,7 @@ function showFeedbackModal() {
   `;
   document.head.appendChild(style);
 
-  // ======= FUNÇÃO DE AGRADECIMENTO (MANTIDO DO V2) =======
+  // Função de Agradecimento
   function mostrarAgradecimento(texto) {
     modal.innerHTML = `
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;animation:fadeIn 0.4s ease;">
@@ -188,7 +171,7 @@ function showFeedbackModal() {
     }, 1600);
   }
 
-  // ======= FECHAR MANUALMENTE e Eventos de Botão =======
+  // Fechar e Eventos de Botão
   function fecharModal() {
     modal.style.animation = "fadeOut 0.3s ease forwards";
     backdrop.style.animation = "fadeOut 0.3s ease forwards";
@@ -213,8 +196,8 @@ function showFeedbackModal() {
     mostrarAgradecimento("Feedback recebido 💪");
   });
 }
-// ------------------------------------------
 
+// ===================================
 
 function initializeChatUI() {
   const e = document.querySelector(".chat-window-wrapper"),
@@ -240,12 +223,12 @@ function initializeChatUI() {
       t.classList.remove("toggle-inside"),
       t.setAttribute("aria-label", "Abrir chat"),
       (t.innerHTML =
-        '\n                            <svg viewBox="0 0 24 24" width="32" height="32">\n                                <path fill="currentColor" d="M12 3c5.5 0 10 3.58 10 8s-4.5 8-10 8c-1.24 0-2.43-.18-3.53-.5C5.55 21 2 21 2 21c2.33-2.33 2.7-3.9 2.75-4.5C3.05 15.07 2 13.13 2 11c0-4.42 4.5-8 10-8"></path>\n                            </svg>\n                            '));
+        '\n                            <svg viewBox="0 0 24 24" width="32" height="32">\n                                <path fill="currentColor" d="M12 3c5.5 0 10 3.58 10 8s-4.5 8-10 8c-1.24 0-2.43-.18-3.53-.5C5.55 21 2 21 2 21c2.33-2.33 2.7-3.9 2.75-4.5C3.05 15.07 2 13.13 2 11c0-4.42 4.5-8 10-8"></path>\n                            </svg>\n                            '));
   }
   function i() {
     e.classList.remove("is-open"), a();
 
-    // 🔹 NOVO: Lógica para abrir o modal de feedback após fechar o chat
+    // NOVO: Lógica para abrir o modal de feedback após fechar o chat
     setTimeout(async () => {
       try {
         const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
@@ -253,7 +236,8 @@ function initializeChatUI() {
           console.log("✅ Feedback já enviado — modal não será exibido.");
           return;
         }
-        const history = await getChatHistory(true); // Busca histórico sem renderizar
+        // Busca histórico SEM renderizar para checar se houve conversa
+        const history = await getChatHistory(true); 
         const temHistorico = Array.isArray(history) && history.length > 0;
 
         if (temHistorico) {
@@ -265,7 +249,7 @@ function initializeChatUI() {
       } catch (err) {
         console.error("❌ Erro ao verificar histórico para feedback:", err);
       }
-    }, 400); // Espera a animação de fechar
+    }, 400);
   }
 
   t.parentElement && t.parentElement.insertBefore(o, t.nextSibling),
@@ -284,7 +268,7 @@ function initializeChatUI() {
       t.classList.add("toggle-inside"),
       t.setAttribute("aria-label", "Fechar chat"),
       (t.innerHTML =
-        '\n                        <img src="https://cdn-icons-png.flaticon.com/512/458/458595.png" \n                            alt="Fechar chat" \n                            title="Fechar" \n                            class="img-small" \n                            style="width:24px;height:24px;"/>\n                    '));
+        '\n                        <img src="https://cdn-icons-png.flaticon.com/512/458/458595.png" \n                            alt="Fechar chat" \n                            title="Fechar" \n                            class="img-small" \n                            style="width:24px;height:24px;"/>\n                    '));
   }
   c && c.addEventListener("click", i),
     e.classList.contains("is-open") ? r() : a(),
@@ -296,13 +280,13 @@ function initializeChatUI() {
         const o = n.image,
           a = n.name.trim(),
           i = a.length > 60 ? a.substring(0, 60) + "..." : a;
-        (t.innerHTML = `\n      <div class="chat-info">\n        <img src="${o}" alt="${a}" />\n        <div class="chat-heading">\n          <h1>${i}</h1>\n          <div class="chat-status"><div class="status-dot"></div> Simon AI está online</div>\n        </div>\n      </div>\n    `),
+        (t.innerHTML = `\n      <div class="chat-info">\n        <img src="${o}" alt="${a}" />\n        <div class="chat-heading">\n          <h1>${i}</h1>\n          <div class="chat-status"><div class="status-dot"></div> Simon AI está online</div>\n        </div>\n      </div>\n    `),
           (function (e) {
             const t = document.querySelector(".chat-body");
             if (t) {
               const n = document.createElement("div");
               n.classList.add("chat-welcome-message");
-              const o = `\n                        <div class="welcome-content">\n                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot mx-auto h-12 w-12 text-primary">\n                                <path d="M12 8V4H8"></path>\n                                <rect width="16" height="12" x="4" y="8" rx="2"></rect>\n                                <path d="M2 14h2"></path>\n                                <path d="M20 14h2"></path>\n                                <path d="M15 13v2"></path>\n                                <path d="M9 13v2"></path>\n                            </svg>\n                            <h2 class="welcome-title">Bem-vindo ao Simon Assist</h2>\n                            <p class="welcome-text">Pergunte-me qualquer coisa sobre o ${e}!</p>\n                        </div>\n                    `;
+              const o = `\n                        <div class="welcome-content">\n                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot mx-auto h-12 w-12 text-primary">\n                                <path d="M12 8V4H8"></path>\n                                <rect width="16" height="12" x="4" y="8" rx="2"></rect>\n                                <path d="M2 14h2"></path>\n                                <path d="M20 14h2"></path>\n                                <path d="M15 13v2"></path>\n                                <path d="M9 13v2"></path>\n                            </svg>\n                            <h2 class="welcome-title">Bem-vindo ao Simon Assist</h2>\n                            <p class="welcome-text">Pergunte-me qualquer coisa sobre o ${e}!</p>\n                        </div>\n                    `;
               n.innerHTML = o;
               const r = t.querySelector(".chat-messages-list");
               r ? t.insertBefore(n, r) : t.appendChild(n);
@@ -320,28 +304,28 @@ function CTA() {
     const t = document.createElement("div");
     return (
       (t.id = "simon-help-box"),
-      (t.style.cssText = `\n      display:flex;\n      justify-content:center;\n      margin-top:${
+      (t.style.cssText = `\n      display:flex;\n      justify-content:center;\n      margin-top:${
         e ? "20px" : "60px"
-      };\n      margin-bottom:10px;\n      width:100%;\n      animation:fadeIn .4s ease;\n    `),
-      (t.innerHTML = `\n      <section style="\n        background:linear-gradient(145deg,#0f0f0f,#1a1a1a);\n        border:1px solid rgba(0,255,170,0.25);\n        box-shadow:0 0 15px rgba(0,255,170,0.15);\n        border-radius:10px;\n        padding:${
+      };\n      margin-bottom:10px;\n      width:100%;\n      animation:fadeIn .4s ease;\n    `),
+      (t.innerHTML = `\n      <section style="\n        background:linear-gradient(145deg,#0f0f0f,#1a1a1a);\n        border:1px solid rgba(0,255,170,0.25);\n        box-shadow:0 0 15px rgba(0,255,170,0.15);\n        border-radius:10px;\n        padding:${
         e ? "16px" : "20px"
-      };\n        color:#ddd;\n        max-width:${
+      };\n        color:#ddd;\n        max-width:${
         e ? "95%" : "720px"
-      };\n        text-align:center;\n        font-family:'Roboto',sans-serif;\n      ">\n        <h3 style="\n          color:#00ffa3;\n          font-size:${
+      };\n        text-align:center;\n        font-family:'Roboto',sans-serif;\n      ">\n        <h3 style="\n          color:#00ffa3;\n          font-size:${
         e ? "16px" : "18px"
-      };\n          font-weight:700;\n          display:flex;\n          align-items:center;\n          justify-content:center;\n          gap:8px;\n          margin-bottom:10px;\n        ">\n          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png"\n               width="${
+      };\n          font-weight:700;\n          display:flex;\n          align-items:center;\n          justify-content:center;\n          gap:8px;\n          margin-bottom:10px;\n        ">\n          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png"\n               width="${
         e ? "22" : "24"
-      }"\n               height="${
+      }"\n               height="${
         e ? "22" : "24"
-      }"\n               alt="Simon"\n               style="filter:brightness(0) invert(1);">\n          Precisa de ajuda para decidir?\n        </h3>\n        <p style="\n          font-size:${
+      }"\n               alt="Simon"\n               style="filter:brightness(0) invert(1);">\n          Precisa de ajuda para decidir?\n        </h3>\n        <p style="\n          font-size:${
         e ? "14px" : "15px"
-      };\n          color:#bbb;\n          margin-bottom:${
+      };\n          color:#bbb;\n          margin-bottom:${
         e ? "14px" : "18px"
-      };\n        ">\n          Descubra em segundos se este produto é ideal para você!\n        </p>\n        <button id="btn-open-simon-chat" style="\n          background:linear-gradient(90deg,#00ffa3,#00c0ff);\n          color:#000;\n          border:none;\n          border-radius:8px;\n          padding:${
+      };\n        ">\n          Descubra em segundos se este produto é ideal para você!\n        </p>\n        <button id="btn-open-simon-chat" style="\n          background:linear-gradient(90deg,#00ffa3,#00c0ff);\n          color:#000;\n          border:none;\n          border-radius:8px;\n          padding:${
         e ? "10px 20px" : "12px 24px"
-      };\n          font-weight:700;\n          cursor:pointer;\n          font-size:${
+      };\n          font-weight:700;\n          cursor:pointer;\n          font-size:${
         e ? "15px" : "16px"
-      };\n          box-shadow:0 0 12px rgba(0,255,170,0.4);\n          transition:all .3s ease;\n        " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">\n          💬 Falar com o Simon\n        </button>\n      </section>\n\n      <style>\n        @keyframes fadeIn {\n          from {opacity:0;transform:translateY(10px);}\n          to {opacity:1;transform:translateY(0);}\n        }\n      </style>\n    `),
+      };\n          box-shadow:0 0 12px rgba(0,255,170,0.4);\n          transition:all .3s ease;\n        " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">\n          💬 Falar com o Simon\n        </button>\n      </section>\n\n      <style>\n        @keyframes fadeIn {\n          from {opacity:0;transform:translateY(10px);}\n          to {opacity:1;transform:translateY(0);}\n        }\n      </style>\n    `),
       setTimeout(() => {
         const e = t.querySelector("#btn-open-simon-chat");
         e &&
@@ -382,7 +366,7 @@ function CTA() {
             );
           const r = document.createElement("style");
           (r.textContent =
-            "\n      .product__wrapper.product__single {\n        margin-bottom: 180px !important;\n      }\n    "),
+            "\n      .product__wrapper.product__single {\n        margin-bottom: 180px !important;\n      }\n    "),
             document.head.appendChild(r);
         })(),
         clearInterval(n)),
@@ -577,7 +561,7 @@ function getOnlyTextFromBody() {
   let o = n.join(" ");
   return (o = o.replace(/\s+/g, " ").trim()), o;
 }
-async function getChatHistory(onlyFetch = false) { // 🔹 NOVO: Adicionado parâmetro para não renderizar
+async function getChatHistory(onlyFetch = false) { // Adicionado parâmetro 'onlyFetch'
   function e(e, t) {
     var n = document.createElement(e);
     return t && (n.className = t), n;
@@ -618,8 +602,8 @@ async function getChatHistory(onlyFetch = false) { // 🔹 NOVO: Adicionado par�
     var i = await a.json(),
       c = Array.isArray(i) ? i[0] && i[0].history : i && i.history;
     if (!Array.isArray(c) || !c.length) return [];
-
-    // 🔹 Retorna o histórico para o modal, sem renderizar na UI.
+    
+    // NOVO: Retorna o histórico sem renderizar se for para checagem do modal
     if (onlyFetch) return c;
 
 
@@ -659,7 +643,6 @@ function managePageSession() {
     t = "pageSessionData";
   let n = JSON.parse(localStorage.getItem(t) || "{}");
   const o = localStorage.getItem("dataHora");
-  // 864e5 = 24 * 60 * 60 * 1000 milissegundos
   if (!o || new Date() - new Date(o) > 864e5)
     return (
       console.log("🧹 Expirou — limpando dados de pageSessionData..."),
