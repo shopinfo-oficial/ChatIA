@@ -203,21 +203,16 @@ function initializeChatUI() {
     const chatHeader = document.querySelector(".chat-header");
     if (!chatHeader) return;
 
-    // 🔹 Pega dados do produto usando a mesma lógica do getProductInfo
-    const product = getProductInfo();
+    const productName = "IA Simon Assist";
+    const limitedProductName =
+      productName.length > 60
+        ? productName.substring(0, 60) + "..."
+        : productName;
 
-    if (product.image && product.name) {
-      const productImgSrc = product.image;
-      const productName = product.name.trim();
-      const limitedProductName =
-        productName.length > 60
-          ? productName.substring(0, 60) + "..."
-          : productName;
-
-      // Monta o header SEM o botão X (vamos usar o toggle dentro do header)
-      chatHeader.innerHTML = `
+    // Monta o header SEM o botão X (vamos usar o toggle dentro do header)
+    chatHeader.innerHTML = `
       <div class="chat-info">
-        <img src="${productImgSrc}" alt="${productName}" />
+        <img src="https://media.istockphoto.com/id/1634258551/pt/vetorial/ai-icon-artificial-intelligence-logo-machine-learning-generate-image-amd-text-sign.jpg?s=612x612&w=0&k=20&c=okv6FCtGF2SnfKfSNZMU8EHCzp4QFtIumVO2OKWTWx0=" />
         <div class="chat-heading">
           <h1>${limitedProductName}</h1>
           <div class="chat-status"><div class="status-dot"></div> Simon AI está online</div>
@@ -225,16 +220,11 @@ function initializeChatUI() {
       </div>
     `;
 
-      showWelcomeMessage(limitedProductName);
+    showWelcomeMessage(limitedProductName);
 
-      // Se já estiver aberto quando o header for atualizado, garante o toggle no header
-      if (chatWrapper.classList.contains("is-open")) {
-        moveToggleIntoHeader();
-      }
-    } else {
-      console.error(
-        "Erro: Não foi possível encontrar a imagem ou o nome do produto."
-      );
+    // Se já estiver aberto quando o header for atualizado, garante o toggle no header
+    if (chatWrapper.classList.contains("is-open")) {
+      moveToggleIntoHeader();
     }
   }
 
@@ -473,188 +463,9 @@ function CTA() {
 
 CTA();
 
-function getProductInfo() {
-  const product = {
-    name: "",
-    image: "",
-    price: "",
-    currency: "BRL",
-    availability: "",
-    url: window.location.href,
-    rating: "",
-    reviewCount: "",
-  };
-
-  const scripts = [
-    ...document.querySelectorAll('script[type="application/ld+json"]'),
-  ];
-  for (let s of scripts) {
-    try {
-      const parsed = JSON.parse(s.innerText);
-
-      if (parsed["@type"] === "Product") {
-        product.name = parsed.name || product.name;
-        product.image = parsed.image || product.image; // <--- Extrai a imagem do JSON-LD
-        product.price = parsed.offers?.price || product.price;
-        product.currency = parsed.offers?.priceCurrency || product.currency;
-        product.availability =
-          parsed.offers?.availability || product.availability;
-        product.rating = parsed.aggregateRating?.ratingValue || product.rating;
-        product.reviewCount =
-          parsed.aggregateRating?.reviewCount || product.reviewCount;
-      }
-
-      if (parsed["@graph"]) {
-        parsed["@graph"].forEach((p) => {
-          if (p["@type"] === "Product") {
-            product.name = p.name || product.name;
-            product.image = p.image || product.image; // <--- Extrai a imagem do JSON-LD
-            product.price = p.offers?.price || product.price;
-            product.currency = p.offers?.priceCurrency || product.currency;
-            product.availability =
-              p.offers?.availability || product.availability;
-            product.rating = p.aggregateRating?.ratingValue || product.rating;
-            product.reviewCount =
-              p.aggregateRating?.reviewCount || product.reviewCount;
-          }
-        });
-      }
-    } catch {}
-  }
-  // ---
-
-  // === 2. Meta tags ===
-  const metaSelectors = [
-    'meta[property="og:title"]',
-    'meta[name="title"]',
-    'meta[name="product:title"]',
-    'meta[property="product:title"]',
-    'meta[name="description"]',
-    'meta[property="og:description"]',
-    'meta[name="product:price:amount"]',
-    'meta[property="product:price:amount"]',
-    'meta[name="price"]',
-    'meta[itemprop="price"]',
-    'meta[itemprop="name"]',
-    'meta[property="og:price:amount"]',
-  ];
-  metaSelectors.forEach((sel) => {
-    const el = document.querySelector(sel);
-    if (el) {
-      if (!product.name && /title|description|name/i.test(sel)) {
-        product.name = el.content.trim();
-      }
-      if (!product.price && /price/i.test(sel)) {
-        product.price = el.content.trim();
-      }
-    }
-  });
-
-  // --- Adicionando a extração de imagem via Meta Tags ---
-  const imageMetaSelectors = [
-    'meta[property="og:image"]',
-    'meta[name="twitter:image"]',
-    'meta[itemprop="image"]',
-  ];
-  imageMetaSelectors.forEach((sel) => {
-    if (!product.image) {
-      const el = document.querySelector(sel);
-      if (el && el.content) {
-        product.image = el.content.trim();
-      }
-    }
-  });
-  // ---
-
-  // === 3. Nome via DOM ===
-  if (!product.name) {
-    const nameEl = document.querySelector(
-      "h1, h2.product-title, .productName, .product_title, .product-title, " +
-        ".pdp-title, .product-heading, .product__name, .product-detail-name, " +
-        "[class*='product__info--name'], .descricao, .descricao-curta, .description, .titulo"
-    );
-    if (nameEl) product.name = nameEl.innerText.trim();
-  }
-
-  // --- Adicionando a extração de imagem via DOM ---
-  if (!product.image) {
-    const imageSelectors = [
-      ".product-image img",
-      ".pdp-image-main img",
-      ".product__image img",
-      "#product-image",
-      "[data-testid='main-product-image'] img",
-    ];
-    for (const selector of imageSelectors) {
-      const imgEl = document.querySelector(selector);
-      if (imgEl && imgEl.src) {
-        product.image = imgEl.src.trim();
-        break;
-      }
-    }
-  }
-  // ---
-
-  // Restante do código (preço, disponibilidade, etc.)
-  // === 3. Preço ===
-  if (!product.price) {
-    // Primeiro tenta pelo skuBestPrice
-    const skuBestPriceEl = document.querySelector(".skuBestPrice");
-    if (skuBestPriceEl) {
-      product.price = skuBestPriceEl.textContent.trim();
-
-      // Captura preço no PIX se existir
-      const pixPriceEl = skuBestPriceEl.querySelector(".p-pix-price");
-      if (pixPriceEl) {
-        product.pixPrice = pixPriceEl.textContent.trim();
-      }
-    }
-  }
-
-  // Se ainda não achou, segue com os seletores genéricos
-  if (!product.price) {
-    const priceEl = [
-      ...document.querySelectorAll(
-        ".price, .product-price, .product__price, .pdp-price, .sale-price, " +
-          ".regular-price, .final-price, [itemprop='price'], " +
-          "span, strong, div, p"
-      ),
-    ].find((el) => /(\$|R\$)\s?\d+([.,]\d{2})/.test(el.textContent));
-    if (priceEl) product.price = priceEl.textContent.trim();
-  }
-
-  if (!product.availability) {
-    const buyBtn = [...document.querySelectorAll("button, a")].find((el) =>
-      /compr(ar|e)|add to cart|buy now/i.test(el.textContent)
-    );
-    const soldOut = [
-      ...document.querySelectorAll("button, a, p, div, span"),
-    ].find((el) =>
-      /esgotado|indispon[ií]vel|out of stock|sold out/i.test(el.textContent)
-    );
-    if (buyBtn) product.availability = "InStock";
-    if (soldOut) product.availability = "OutOfStock";
-  }
-  if (!product.rating) {
-    const ratingEl = document.querySelector(
-      "[itemprop='ratingValue'], .rating, .star-rating"
-    );
-    if (ratingEl) product.rating = ratingEl.textContent.trim();
-  }
-  if (!product.reviewCount) {
-    const reviewEl = document.querySelector(
-      "[itemprop='reviewCount'], .review-count, .reviews"
-    );
-    if (reviewEl) product.reviewCount = reviewEl.textContent.trim();
-  }
-  console.log("📦 Produto detectado:", product);
-
-  return product;
-}
-
 // O resto do seu código pode ser mantido como está.
 
-async function sendProductToBackend(product, pageText) {
+async function sendProductToBackend(pageText) {
   const sessionId = localStorage.getItem("customSessionId");
   const dataHora = localStorage.getItem("dataHora");
 
@@ -671,7 +482,6 @@ async function sendProductToBackend(product, pageText) {
       dataHora: pageSession.dataHora || dataHora || null,
       url: currentUrl,
     },
-    product,
     pageText,
   };
 
@@ -1105,12 +915,11 @@ function managePageSession() {
 }
 
 // Executa automático ao abrir a página
-const product = getProductInfo();
 const cleanText = getOnlyTextFromBody();
 
 // Envia produto
 setTimeout(() => {
-  sendProductToBackend(product, cleanText);
+  sendProductToBackend( cleanText);
 }, 1500);
 
 // Busca histórico da conversa
