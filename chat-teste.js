@@ -1,4 +1,3 @@
-
 const linkChatSimon = document.createElement("link");
 linkChatSimon.rel = "stylesheet";
 linkChatSimon.href = "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css";
@@ -52,7 +51,6 @@ if (expirou) {
 } else {
   console.log("♻️ Sessão existente:", customSessionId);
 }
-
 
 // Inicializa o chat
 const chat = createChat({
@@ -134,7 +132,6 @@ function initializeChatUI() {
     restoreToggleToOriginalPlace();
   }
 
-
   // Clique no próprio toggle: abre se fechado, fecha (e restaura) se aberto
   chatToggle.addEventListener("click", async function () {
     // 🔹 Se o chat estiver aberto, vamos fechar e possivelmente abrir o modal
@@ -165,7 +162,7 @@ function initializeChatUI() {
         } catch (err) {
           console.error("❌ Erro ao verificar histórico:", err);
         }
-      }, 400);
+      }, 150);
 
       // 🔹 Se o chat estiver fechado, apenas abre normalmente
     } else {
@@ -286,90 +283,192 @@ function initializeChatUI() {
 initializeChatUI();
 
 function CTA() {
-  function e(e) {
-    const t = document.createElement("div");
-    return (
-      (t.id = "simon-help-box"),
-      (t.style.cssText = `\n      display:flex;\n      justify-content:center;\n      margin-top:${
-        e ? "20px" : "60px"
-      };\n      margin-bottom:10px;\n      width:100%;\n      animation:fadeIn .4s ease;\n    `),
-      (t.innerHTML = `\n      <section style="\n        background:linear-gradient(145deg,#0f0f0f,#1a1a1a);\n        border:1px solid rgba(0,255,170,0.25);\n        box-shadow:0 0 15px rgba(0,255,170,0.15);\n        border-radius:10px;\n        padding:${
-        e ? "16px" : "20px"
-      };\n        color:#ddd;\n        max-width:${
-        e ? "95%" : "720px"
-      };\n        text-align:center;\n        font-family:'Roboto',sans-serif;\n      ">\n        <h3 style="\n          color:#00ffa3;\n          font-size:${
-        e ? "16px" : "18px"
-      };\n          font-weight:700;\n          display:flex;\n          align-items:center;\n          justify-content:center;\n          gap:8px;\n          margin-bottom:10px;\n        ">\n          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png"\n               width="${
-        e ? "22" : "24"
-      }"\n               height="${
-        e ? "22" : "24"
-      }"\n               alt="Simon"\n               style="filter:brightness(0) invert(1);">\n          Precisa de ajuda para decidir?\n        </h3>\n        <p style="\n          font-size:${
-        e ? "14px" : "15px"
-      };\n          color:#bbb;\n          margin-bottom:${
-        e ? "14px" : "18px"
-      };\n        ">\n          Descubra em segundos se este produto é ideal para você!\n        </p>\n        <button id="btn-open-simon-chat" style="\n          background:linear-gradient(90deg,#00ffa3,#00c0ff);\n          color:#000;\n          border:none;\n          border-radius:8px;\n          padding:${
-        e ? "10px 20px" : "12px 24px"
-      };\n          font-weight:700;\n          cursor:pointer;\n          font-size:${
-        e ? "15px" : "16px"
-      };\n          box-shadow:0 0 12px rgba(0,255,170,0.4);\n          transition:all .3s ease;\n        " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">\n          💬 Falar com o Simon\n        </button>\n      </section>\n\n      <style>\n        @keyframes fadeIn {\n          from {opacity:0;transform:translateY(10px);}\n          to {opacity:1;transform:translateY(0);}\n        }\n      </style>\n    `),
-      setTimeout(() => {
-        const e = t.querySelector("#btn-open-simon-chat");
-        e &&
-          e.addEventListener("click", function () {
-            const e = document.querySelector(".chat-window-wrapper"),
-              t = document.querySelector(".chat-window-toggle");
-            e && t
-              ? (e.classList.contains("is-open")
-                  ? e.classList.add("is-open")
-                  : t.click(),
-                setTimeout(() => {
-                  const t = e.querySelector("textarea, input[type='text']");
-                  t && t.focus();
-                }, 400))
-              : console.warn("⚠️ Chat do Simon não encontrado para abrir.");
-          });
-      }, 1e3),
-      t
-    );
-  }
-  const t = window.innerWidth <= 768,
-    n = setInterval(() => {
-      !t &&
-        document.querySelector(".productDescription-hexagon.mobile-notshow") &&
-        (!(function () {
-          const t = document.querySelector(
-            ".productDescription-hexagon.mobile-notshow"
-          );
-          if (!t || document.querySelector("#simon-help-box")) return;
-          const n = document.createElement("div");
-          (n.className = "productDescription-hexagon mobile-notshow"),
-            (n.style.top = "528px");
-          const o = e(!1);
-          n.appendChild(o),
-            t.insertAdjacentElement("afterend", n),
-            console.log(
-              "🖥️ CTA Simon adicionado no desktop dentro de nova div .productDescription-hexagon."
-            );
-          const r = document.createElement("style");
-          (r.textContent =
-            "\n      .product__wrapper.product__single {\n        margin-bottom: 180px !important;\n      }\n    "),
-            document.head.appendChild(r);
-        })(),
-        clearInterval(n)),
-        t &&
-          document.querySelector(".buy-button-ref") &&
-          (!(function () {
-            const t = document.querySelector(".product__info--sku"),
-              n = document.querySelector(".buy-button-ref");
-            if (!t || !n || document.querySelector("#simon-help-box")) return;
-            const o = e(!0);
-            n.parentElement.insertAdjacentElement("afterend", o),
-              console.log(
-                "📱 CTA Simon adicionado abaixo do botão Comprar (mobile)."
+  // ======== BLOCO DE CRIAÇÃO DO CTA ========
+  function createSimonCTA(isMobile) {
+    const wrapper = document.createElement("div");
+    wrapper.id = "simon-help-box";
+    wrapper.style.cssText = `
+      display:flex;
+      justify-content:center;
+      margin-top:${isMobile ? "20px" : "0px"};
+      margin-bottom:0px;
+      width:100%;
+      animation:fadeIn .4s ease;
+    `;
+
+    wrapper.innerHTML = `
+      <section style="
+       
+      
+        padding:${isMobile ? "16px" : "15px"};
+        color:#ddd;
+        max-width:${isMobile ? "95%" : "103%"};
+        text-align:center;
+        font-family:'Roboto',sans-serif;
+        display: flex;
+        position: absolute;
+      ">
+        <h3 style="
+          color:#fff;
+          font-size:${isMobile ? "16px" : "14px"};
+          font-weight:700;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          gap:8px;
+          margin-bottom:0px;
+              text-align: left;
+        ">
+          <img src="https://cdn-icons-png.flaticon.com/512/764/764690.png" width="24" height="24" alt="Simon" style="filter: brightness(0) saturate(100%) invert(79%) sepia(94%) saturate(7472%) hue-rotate(117deg) brightness(105%) contrast(101%);">
+          Precisa de ajuda para decidir?
+        </h3>
+        <p style="
+          font-size:${isMobile ? "14px" : "13px"};
+          text-align: left;
+          margin-left: 11px;
+          color:#bbb;
+          display: flex;
+          align-items: center;
+          margin-bottom:${isMobile ? "14px" : "0px"};
+        ">
+          Descubra em segundos se este produto é ideal para você!
+        </p>
+        <button id="btn-open-simon-chat" style="
+          background:linear-gradient(90deg,#00ffa3,#00c0ff);
+          color:#000;
+          border:none;
+          border-radius:8px;
+          padding:${isMobile ? "10px 20px" : "14px 12px"};
+          font-weight:700;
+          width: 285px;
+          cursor:pointer;
+          font-size:${isMobile ? "15px" : "14px"};
+          box-shadow:0 0 12px rgba(0,255,170,0.4);
+          transition:all .3s ease;
+        " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">
+          💬 Falar com o Simon
+        </button>
+      </section>
+
+      <style>
+        @keyframes fadeIn {
+          from {opacity:0;transform:translateY(10px);}
+          to {opacity:1;transform:translateY(0);}
+        }
+      </style>
+    `;
+
+    // 🔹 Ao clicar no botão, abre o modal do chat
+    setTimeout(() => {
+      const btn = wrapper.querySelector("#btn-open-simon-chat");
+      if (btn) {
+        btn.addEventListener("click", function () {
+          const chatWrapper = document.querySelector(".chat-window-wrapper");
+          const toggle = document.querySelector(".chat-window-toggle");
+
+          if (chatWrapper && toggle) {
+            if (!chatWrapper.classList.contains("is-open")) {
+              toggle.click(); // abre o chat
+            } else {
+              chatWrapper.classList.add("is-open");
+            }
+
+            // foca no campo de mensagem (melhor UX)
+            setTimeout(() => {
+              const input = chatWrapper.querySelector(
+                "textarea, input[type='text']"
               );
-          })(),
-          clearInterval(n));
-    }, 500);
+              if (input) input.focus();
+            }, 400);
+          } else {
+            console.warn("⚠️ Chat do Simon não encontrado para abrir.");
+          }
+        });
+      }
+    }, 1000);
+
+    return wrapper;
+  }
+
+  // ======== WEB (DESKTOP) ========
+  function injectSimonWebCTASeparate() {
+    // 1) Caso "Vish, Pinou" (resultado vazio): insere entre <p> e <a.call-to-action>
+    var emptyP = document.querySelector(".container > div > p");
+    var emptyA = document.querySelector(".container > div > a.call-to-action");
+    if (emptyP && emptyA) {
+      if (document.querySelector("#simon-help-box")) return;
+      var isMobile = window.innerWidth <= 768;
+      var ctaEmpty = createSimonCTA(isMobile);
+      emptyP.insertAdjacentElement("afterend", ctaEmpty);
+      console.log(
+        "✅ CTA Simon inserido entre <p> e <a.call-to-action> (Vish, Pinou)."
+      );
+      return;
+    }
+
+    // 2) Comportamento original da PDP (desktop)
+    const firstBlock = document.querySelector(
+      ".productDescription-hexagon.mobile-notshow"
+    );
+    if (!firstBlock || document.querySelector("#simon-help-box")) return;
+
+    // Cria a segunda div com a mesma classe
+    const secondBlock = document.createElement("div");
+    secondBlock.className = "productDescription-hexagon mobile-notshow";
+    secondBlock.style.top = "545px";
+    secondBlock.style.setProperty("box-shadow", "none", "important");
+
+    // Adiciona o CTA dentro
+    const cta = createSimonCTA(false);
+    secondBlock.appendChild(cta);
+
+    // Insere logo abaixo do primeiro bloco
+    firstBlock.insertAdjacentElement("afterend", secondBlock);
+    console.log(
+      "🖥️ CTA Simon adicionado no desktop dentro de nova div .productDescription-hexagon."
+    );
+
+    // ======== CSS EXTRA (somente desktop) — evita duplicar
+    if (!document.querySelector("#simon-cta-desktop-style")) {
+      const style = document.createElement("style");
+      style.id = "simon-cta-desktop-style";
+      style.textContent = `
+      .product__wrapper.product__single {
+        margin-bottom: 180px !important;
+      }
+    `;
+      document.head.appendChild(style);
+    }
+  }
+
+  // ======== MOBILE ========
+  function injectSimonMobileCTA() {
+    const skuInfo = document.querySelector(".product__info--sku");
+    const buyButton = document.querySelector(".buy-button-ref");
+    if (!skuInfo || !buyButton || document.querySelector("#simon-help-box"))
+      return;
+
+    const cta = createSimonCTA(true);
+    buyButton.parentElement.insertAdjacentElement("afterend", cta);
+    console.log("📱 CTA Simon adicionado abaixo do botão Comprar (mobile).");
+  }
+
+  // ======== EXECUÇÃO ========
+  const isMobile = window.innerWidth <= 768;
+
+  const check = setInterval(() => {
+    if (
+      !isMobile &&
+      document.querySelector(".productDescription-hexagon.mobile-notshow")
+    ) {
+      injectSimonWebCTASeparate();
+      clearInterval(check);
+    }
+    if (isMobile && document.querySelector(".buy-button-ref")) {
+      injectSimonMobileCTA();
+      clearInterval(check);
+    }
+  }, 500);
 }
 
 CTA();
@@ -769,7 +868,7 @@ function showFeedbackModal() {
     align-items: center;
     justify-content: center;
     z-index: 9999;
-    animation: fadeIn 0.3s ease forwards;
+    animation: fadeIn 0.03s ease forwards;
   `;
 
   // ======= MODAL =======
@@ -787,7 +886,7 @@ function showFeedbackModal() {
     position: relative;
     transform: scale(0.9);
     opacity: 0;
-    animation: popIn 0.35s ease forwards;
+    animation: popIn 0.035s ease forwards;
     font-family: 'Roboto', sans-serif;
   `;
 
@@ -819,7 +918,8 @@ function showFeedbackModal() {
 
   // ======= DESCRIÇÃO =======
   const desc = document.createElement("p");
-  desc.textContent = "Sua opinião ajuda a deixar o Simon cada vez mais afiado ⚡";
+  desc.textContent =
+    "Sua opinião ajuda a deixar o Simon cada vez mais afiado ⚡";
   desc.style.cssText = `
     color: #aaa;
     font-size: 14px;
@@ -934,12 +1034,9 @@ function showFeedbackModal() {
       modal.style.animation = "fadeOut 0.4s ease forwards";
       backdrop.style.animation = "fadeOut 0.4s ease forwards";
       setTimeout(() => document.body.removeChild(backdrop), 400);
-    }, 1600);
+    }, 150);
   }
 }
-
-
-
 
 // 🔹 Envia feedback para o backend
 
@@ -971,11 +1068,6 @@ async function sendFeedback(valor) {
     localStorage.setItem("feedbackEnviado", "false");
   }
 }
-
-
-
-
-
 
 function managePageSession() {
   const currentUrl = window.location.href;
