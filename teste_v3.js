@@ -27,6 +27,7 @@ import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bun
 // Recupera dados do localStorage
 let customSessionId = localStorage.getItem("customSessionId");
 let dataHora = localStorage.getItem("dataHora");
+let VishPinou = localStorage.getItem("isVishPinou");
 
 // Verifica se já passou de 24h
 const agora = new Date();
@@ -61,6 +62,7 @@ const chat = createChat({
     method: "POST",
     headers: {
       customSessionId: customSessionId,
+      vishpinou: VishPinou
     },
   },
   metadata: {
