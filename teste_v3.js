@@ -380,19 +380,24 @@ function CTA() {
     return wrapper;
   }
 
-
   function injectSimonCTAOnVishPinou() {
-  const interval = setInterval(() => {
-    const section = document.querySelector(".empty-search__title .container > div");
-    const p = section?.querySelector("p");
-    const a = section?.querySelector("a.call-to-action");
+    const interval = setInterval(() => {
+      const section = document.querySelector(
+        ".empty-search__title .container > div"
+      );
+      const p = section?.querySelector("p");
+      const a = section?.querySelector("a.call-to-action");
 
-    if (section && p && a && !document.querySelector("#simon-help-box")) {
-      clearInterval(interval);
+      if (section && p && a && !document.querySelector("#simon-help-box")) {
+        clearInterval(interval);
 
-      const wrapper = document.createElement("div");
-      wrapper.id = "simon-help-box";
-      wrapper.style.cssText = `
+        // 🔹 Marca no localStorage que é a página "Vish, Pinou"
+        localStorage.setItem("isVishPinou", "true");
+        console.log("📍 Página Vish, Pinou detectada — isVishPinou: true");
+
+        const wrapper = document.createElement("div");
+        wrapper.id = "simon-help-box";
+        wrapper.style.cssText = `
         display: flex;
         justify-content: center;
         align-items: center;
@@ -400,7 +405,7 @@ function CTA() {
         margin: 15px 0;
       `;
 
-      wrapper.innerHTML = `
+        wrapper.innerHTML = `
         <button id="btn-open-simon-chat" style="
           background:linear-gradient(90deg,#00ffa3,#00c0ff);
           color:#000;
@@ -420,38 +425,39 @@ function CTA() {
         </p>
       `;
 
-      // 🔹 Insere o CTA logo entre o <p> e o <a>
-      p.insertAdjacentElement("afterend", wrapper);
-      console.log("✅ CTA Simon inserido na página Vish, Pinou.");
+        // 🔹 Insere o CTA logo entre o <p> e o <a>
+        p.insertAdjacentElement("afterend", wrapper);
+        console.log("✅ CTA Simon inserido na página Vish, Pinou.");
 
-      // 🔹 Ação do botão
-      const btn = wrapper.querySelector("#btn-open-simon-chat");
-      btn.addEventListener("click", () => {
-        const chatWrapper = document.querySelector(".chat-window-wrapper");
-        const toggle = document.querySelector(".chat-window-toggle");
+        // 🔹 Ação do botão
+        const btn = wrapper.querySelector("#btn-open-simon-chat");
+        btn.addEventListener("click", () => {
+          const chatWrapper = document.querySelector(".chat-window-wrapper");
+          const toggle = document.querySelector(".chat-window-toggle");
 
-        if (chatWrapper && toggle) {
-          if (!chatWrapper.classList.contains("is-open")) {
-            toggle.click();
+          if (chatWrapper && toggle) {
+            if (!chatWrapper.classList.contains("is-open")) {
+              toggle.click();
+            } else {
+              chatWrapper.classList.add("is-open");
+            }
+
+            setTimeout(() => {
+              const input = chatWrapper.querySelector(
+                "textarea, input[type='text']"
+              );
+              if (input) input.focus();
+            }, 400);
           } else {
-            chatWrapper.classList.add("is-open");
+            console.warn("⚠️ Chat do Simon não encontrado para abrir.");
           }
+        });
+      }
+    }, 500);
+  }
 
-          setTimeout(() => {
-            const input = chatWrapper.querySelector("textarea, input[type='text']");
-            if (input) input.focus();
-          }, 400);
-        } else {
-          console.warn("⚠️ Chat do Simon não encontrado para abrir.");
-        }
-      });
-    }
-  }, 500);
-}
-
-// Executa a função
-injectSimonCTAOnVishPinou();
-
+  // ✅ Executa automaticamente
+  injectSimonCTAOnVishPinou();
 
   // ======== WEB (DESKTOP) ========
   function injectSimonWebCTASeparate() {
@@ -992,7 +998,7 @@ const cleanText = getOnlyTextFromBody();
 
 // Envia produto
 setTimeout(() => {
-  sendProductToBackend( cleanText);
+  sendProductToBackend(cleanText);
 }, 1500);
 
 // Busca histórico da conversa
