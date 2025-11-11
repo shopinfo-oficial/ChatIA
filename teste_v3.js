@@ -27,7 +27,7 @@ import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bun
 // Recupera dados do localStorage
 let customSessionId = localStorage.getItem("customSessionId");
 let dataHora = localStorage.getItem("dataHora");
-let VishPinou = localStorage.getItem("isVishPinou");
+ let isVishPinou = localStorage.getItem("isVishPinou") === "true";
 
 // Verifica se já passou de 24h
 const agora = new Date();
@@ -42,16 +42,20 @@ if (expirou) {
   localStorage.removeItem("pageSessionData");
   localStorage.removeItem("customSessionId");
   localStorage.removeItem("dataHora");
+  localStorage.removeItem("isVishPinou"); 
 
   // Gera nova sessão e data
   customSessionId = crypto.randomUUID();
   localStorage.setItem("customSessionId", customSessionId);
-  localStorage.setItem("dataHora", agora.toISOString());
+ 
 
   console.log("🆕 Nova sessão criada após 24h:", customSessionId);
 } else {
   console.log("♻️ Sessão existente:", customSessionId);
 }
+
+// 🔹 Recupera novamente após o possível reset
+isVishPinou = localStorage.getItem("isVishPinou") === "true";
 
 // Inicializa o chat
 const chat = createChat({
@@ -62,11 +66,12 @@ const chat = createChat({
     method: "POST",
     headers: {
       customSessionId: customSessionId,
-      vishpinou: VishPinou
+      isVishPinou: isVishPinou, 
     },
   },
   metadata: {
     customSessionId: customSessionId,
+    isVishPinou: isVishPinou
   },
   mode: "window",
   loadPreviousSession: true,
