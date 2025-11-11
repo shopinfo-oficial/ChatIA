@@ -390,23 +390,24 @@ function CTA() {
     return wrapper;
   }
 
+
   // ======== WEB (DESKTOP) ========
   function injectSimonWebCTASeparate() {
-    // 1) Caso "Vish, Pinou" (resultado vazio): insere entre <p> e <a.call-to-action>
+    // 🔹 Caso "Vish, Pinou": insere o CTA logo acima do <a.call-to-action>
     var emptyP = document.querySelector(".container > div > p");
     var emptyA = document.querySelector(".container > div > a.call-to-action");
     if (emptyP && emptyA) {
       if (document.querySelector("#simon-help-box")) return;
       var isMobile = window.innerWidth <= 768;
       var ctaEmpty = createSimonCTA(isMobile);
-      emptyP.insertAdjacentElement("afterend", ctaEmpty);
+      emptyA.insertAdjacentElement("beforebegin", ctaEmpty);
       console.log(
-        "✅ CTA Simon inserido entre <p> e <a.call-to-action> (Vish, Pinou)."
+        "✅ CTA Simon inserido acima do <a.call-to-action> (Vish, Pinou)."
       );
       return;
     }
 
-    // 2) Comportamento original da PDP (desktop)
+    // 🔹 Comportamento original da PDP (desktop)
     const firstBlock = document.querySelector(
       ".productDescription-hexagon.mobile-notshow"
     );
