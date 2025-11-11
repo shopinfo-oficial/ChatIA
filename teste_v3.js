@@ -380,6 +380,79 @@ function CTA() {
     return wrapper;
   }
 
+
+  function injectSimonCTAOnVishPinou() {
+  const interval = setInterval(() => {
+    const section = document.querySelector(".empty-search__title .container > div");
+    const p = section?.querySelector("p");
+    const a = section?.querySelector("a.call-to-action");
+
+    if (section && p && a && !document.querySelector("#simon-help-box")) {
+      clearInterval(interval);
+
+      const wrapper = document.createElement("div");
+      wrapper.id = "simon-help-box";
+      wrapper.style.cssText = `
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin: 15px 0;
+      `;
+
+      wrapper.innerHTML = `
+        <button id="btn-open-simon-chat" style="
+          background:linear-gradient(90deg,#00ffa3,#00c0ff);
+          color:#000;
+          border:none;
+          border-radius:8px;
+          padding:12px 22px;
+          font-weight:700;
+          font-size:15px;
+          cursor:pointer;
+          box-shadow:0 0 12px rgba(0,255,170,0.4);
+          transition:all .3s ease;
+        " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">
+          💬 Falar com o Simon
+        </button>
+        <p style="margin-top:8px;color:#aaa;font-size:13px;text-align:center;">
+          Nosso assistente virtual pode te ajudar a encontrar o que procura 👇
+        </p>
+      `;
+
+      // 🔹 Insere o CTA logo entre o <p> e o <a>
+      p.insertAdjacentElement("afterend", wrapper);
+      console.log("✅ CTA Simon inserido na página Vish, Pinou.");
+
+      // 🔹 Ação do botão
+      const btn = wrapper.querySelector("#btn-open-simon-chat");
+      btn.addEventListener("click", () => {
+        const chatWrapper = document.querySelector(".chat-window-wrapper");
+        const toggle = document.querySelector(".chat-window-toggle");
+
+        if (chatWrapper && toggle) {
+          if (!chatWrapper.classList.contains("is-open")) {
+            toggle.click();
+          } else {
+            chatWrapper.classList.add("is-open");
+          }
+
+          setTimeout(() => {
+            const input = chatWrapper.querySelector("textarea, input[type='text']");
+            if (input) input.focus();
+          }, 400);
+        } else {
+          console.warn("⚠️ Chat do Simon não encontrado para abrir.");
+        }
+      });
+    }
+  }, 500);
+}
+
+// Executa a função
+injectSimonCTAOnVishPinou();
+
+
   // ======== WEB (DESKTOP) ========
   function injectSimonWebCTASeparate() {
     // 1) Caso "Vish, Pinou" (resultado vazio): insere entre <p> e <a.call-to-action>
@@ -463,7 +536,7 @@ function CTA() {
 
 CTA();
 
-// O resto do seu código pode ser mantido como está.
+// O resto do seu código pode ser mantido como está
 
 async function sendProductToBackend(pageText) {
   const sessionId = localStorage.getItem("customSessionId");
@@ -752,7 +825,7 @@ function showFeedbackModal() {
     color: #000;
     border: none;
     padding: 10px 22px;
-    border-radius: 8px;
+    border-radius: 8px;Dados enviados com sucesso:
     cursor: pointer;
     font-weight: 700;
     font-size: 14px;
