@@ -648,40 +648,54 @@ async function getChatHistory() {
 
     var md = el("div", "chat-message-markdown");
 
-    // ✅ se for mensagem do Simon, trata HTML e converte link em botão
+    // ====== BOT (Simon) ======
     if (role === "bot") {
-      let html = text || "";
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = text || "";
 
-      // converte o link da Shopinfo em botão
-      html = html.replace(
-        /(https:\/\/www\.shopinfo\.com\.br[^\s<)]+)/g,
-        `
-      <br>
-      <a href="$1" target="_blank"
-        style="
-          display:inline-block;
-          background:linear-gradient(90deg,#00ffa3,#00c0ff);
-          color:#000;
-          padding:10px 18px;
-          border-radius:8px;
-          font-weight:700;
-          text-decoration:none;
-          margin-top:8px;
-          font-family:'Roboto',sans-serif;
-          transition:all .3s ease;
-          box-shadow:0 0 10px rgba(0,255,163,0.3);
-        "
-        onmouseover="this.style.filter='brightness(1.15)'"
-        onmouseout="this.style.filter='brightness(1)'"
-      >🛒 Ver na Shopinfo</a>
-    `
-      );
+      // 🔍 Procura links da Shopinfo
+      const linkRegex = /(https:\/\/www\.shopinfo\.com\.br[^\s)]+)/g;
 
-      // define o HTML completo (mantém listas, <p>, <ul> etc.)
-      md.innerHTML = html.trim();
-    } else {
-      // usuário → texto puro
-      var p = el("p", "");
+      // Para cada parágrafo com link
+      tempDiv.querySelectorAll("p").forEach((p) => {
+        const match = p.textContent.match(linkRegex);
+        if (match) {
+          const url = match[0];
+
+          // Cria botão DOM real
+          const button = document.createElement("button");
+          button.textContent = "🛒 Ver produto na Shopinfo";
+          button.style.cssText = `
+          display: block;
+          margin: 10px auto;
+          background: linear-gradient(90deg, #00ffa3, #00c0ff);
+          color: #000;
+          font-weight: 700;
+          border: none;
+          border-radius: 8px;
+          padding: 12px 20px;
+          cursor: pointer;
+          font-family: 'Roboto', sans-serif;
+          box-shadow: 0 0 12px rgba(0, 255, 170, 0.4);
+          transition: all .3s ease;
+        `;
+          button.onmouseenter = () =>
+            (button.style.filter = "brightness(1.15)");
+          button.onmouseleave = () => (button.style.filter = "brightness(1)");
+          button.onclick = () => window.open(url, "_blank");
+
+          // Substitui o link no parágrafo pelo botão
+          p.innerHTML = "";
+          p.appendChild(button);
+        }
+      });
+
+      md.innerHTML = tempDiv.innerHTML.trim();
+    }
+
+    // ====== USER ======
+    else {
+      const p = el("p", "");
       p.textContent = text || "";
       md.appendChild(p);
     }
