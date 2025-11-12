@@ -1044,7 +1044,7 @@ function monitorarLinksShopinfo() {
           border-radius:8px;
           font-weight:700;
           text-decoration:none;
-          margin:14px auto 6px;
+          margin:0px;
           width:fit-content;
           font-family:'Roboto',sans-serif;
           box-shadow:0 0 12px rgba(0,255,170,0.4);
