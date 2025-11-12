@@ -27,7 +27,7 @@ import { createChat } from "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bun
 // Recupera dados do localStorage
 let customSessionId = localStorage.getItem("customSessionId");
 let dataHora = localStorage.getItem("dataHora");
- let isVishPinou = localStorage.getItem("isVishPinou") === "true";
+let isVishPinou = localStorage.getItem("isVishPinou") === "true";
 
 // Verifica se já passou de 24h
 const agora = new Date();
@@ -42,12 +42,11 @@ if (expirou) {
   localStorage.removeItem("pageSessionData");
   localStorage.removeItem("customSessionId");
   localStorage.removeItem("dataHora");
-  localStorage.removeItem("isVishPinou"); 
+  localStorage.removeItem("isVishPinou");
 
   // Gera nova sessão e data
   customSessionId = crypto.randomUUID();
   localStorage.setItem("customSessionId", customSessionId);
- 
 
   console.log("🆕 Nova sessão criada após 24h:", customSessionId);
 } else {
@@ -66,12 +65,12 @@ const chat = createChat({
     method: "POST",
     headers: {
       customSessionId: customSessionId,
-      isVishPinou: isVishPinou, 
+      isVishPinou: isVishPinou,
     },
   },
   metadata: {
     customSessionId: customSessionId,
-    isVishPinou: isVishPinou
+    isVishPinou: isVishPinou,
   },
   mode: "window",
   loadPreviousSession: true,
@@ -639,17 +638,44 @@ async function getChatHistory() {
         (role === "bot" ? "chat-message-from-bot" : "chat-message-from-user")
     );
 
-    // marca para deduplicar e identificar que veio do histórico
     wrap.setAttribute("data-msg-key", messageKey(role, text));
     wrap.setAttribute("data-history", "1");
 
-    // opcional "actions"
     var actions = el("div", "chat-message-actions");
     wrap.appendChild(actions);
 
     var md = el("div", "chat-message-markdown");
     var p = el("p", "");
-    p.textContent = text || "";
+
+    // 🔹 Substitui o link por um botão clicável
+    let html = (text || "")
+      // quebra o link e o substitui por botão
+      .replace(
+        /(https:\/\/www\.shopinfo\.com\.br[^\s)]+)/g,
+        `
+        <br><br>
+        <a href="$1" target="_blank" 
+          style="
+            display:inline-block;
+            background:linear-gradient(90deg,#00ffa3,#00c0ff);
+            color:#000;
+            padding:10px 18px;
+            border-radius:8px;
+            font-weight:700;
+            text-decoration:none;
+            margin-top:8px;
+            font-family:'Roboto',sans-serif;
+            transition:all .3s ease;
+            box-shadow:0 0 10px rgba(0,255,163,0.3);
+          "
+          onmouseover="this.style.filter='brightness(1.15)'"
+          onmouseout="this.style.filter='brightness(1)'"
+        >🔗 Ver produto</a>
+      `
+      );
+
+    // 🔹 Define HTML dentro da mensagem (não texto puro)
+    p.innerHTML = html.trim();
     md.appendChild(p);
     wrap.appendChild(md);
 
