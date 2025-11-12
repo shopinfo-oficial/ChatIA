@@ -648,53 +648,50 @@ async function getChatHistory() {
 
     var md = el("div", "chat-message-markdown");
 
-    // ====== BOT (Simon) ======
     if (role === "bot") {
+      // Cria container temporário com o HTML do Simon
       const tempDiv = document.createElement("div");
       tempDiv.innerHTML = text || "";
 
-      // 🔍 Procura links da Shopinfo
-      const linkRegex = /(https:\/\/www\.shopinfo\.com\.br[^\s)]+)/g;
-
-      // Para cada parágrafo com link
+      // Força a transformação de qualquer link Shopinfo dentro de <p> em um botão
       tempDiv.querySelectorAll("p").forEach((p) => {
-        const match = p.textContent.match(linkRegex);
+        const match = p.textContent.match(
+          /https:\/\/www\.shopinfo\.com\.br[^\s)]+/g
+        );
         if (match) {
           const url = match[0];
 
-          // Cria botão DOM real
-          const button = document.createElement("button");
-          button.textContent = "🛒 Ver produto na Shopinfo";
+          // Cria um botão visual (link estilizado)
+          const button = document.createElement("a");
+          button.href = url;
+          button.target = "_blank";
+          button.textContent = "🛒 VER PRODUTO";
           button.style.cssText = `
-          display: block;
-          margin: 10px auto;
-          background: linear-gradient(90deg, #00ffa3, #00c0ff);
-          color: #000;
-          font-weight: 700;
-          border: none;
-          border-radius: 8px;
-          padding: 12px 20px;
-          cursor: pointer;
-          font-family: 'Roboto', sans-serif;
-          box-shadow: 0 0 12px rgba(0, 255, 170, 0.4);
-          transition: all .3s ease;
+          display:block;
+          text-align:center;
+          background:linear-gradient(90deg,#00ffa3,#00c0ff);
+          color:#000;
+          padding:12px 20px;
+          border-radius:8px;
+          font-weight:700;
+          text-decoration:none;
+          margin:14px auto 6px;
+          width:fit-content;
+          font-family:'Roboto',sans-serif;
+          box-shadow:0 0 12px rgba(0,255,170,0.4);
+          transition:all .3s ease;
         `;
-          button.onmouseenter = () =>
-            (button.style.filter = "brightness(1.15)");
+          button.onmouseenter = () => (button.style.filter = "brightness(1.2)");
           button.onmouseleave = () => (button.style.filter = "brightness(1)");
-          button.onclick = () => window.open(url, "_blank");
 
-          // Substitui o link no parágrafo pelo botão
-          p.innerHTML = "";
-          p.appendChild(button);
+          // Remove o texto antigo (link cru) e adiciona o botão
+          p.replaceWith(button);
         }
       });
 
       md.innerHTML = tempDiv.innerHTML.trim();
-    }
-
-    // ====== USER ======
-    else {
+    } else {
+      // Mensagem do usuário (texto puro)
       const p = el("p", "");
       p.textContent = text || "";
       md.appendChild(p);
