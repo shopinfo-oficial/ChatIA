@@ -553,6 +553,7 @@ CTA();
 async function sendProductToBackend(pageText) {
   const sessionId = localStorage.getItem("customSessionId");
   const dataHora = localStorage.getItem("dataHora");
+  const vishPinou = localStorage.getItem("isVishPinou");
 
   // Recupera o ID referente à URL atual
   const currentUrl = window.location.href;
@@ -566,6 +567,7 @@ async function sendProductToBackend(pageText) {
       id: pageSession.id || null,
       dataHora: pageSession.dataHora || dataHora || null,
       url: currentUrl,
+      isVishPinou: vishPinou === "true",
     },
     pageText,
   };
