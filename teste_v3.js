@@ -640,64 +640,20 @@ async function getChatHistory() {
         (role === "bot" ? "chat-message-from-bot" : "chat-message-from-user")
     );
 
+    // marca para deduplicar e identificar que veio do histórico
     wrap.setAttribute("data-msg-key", messageKey(role, text));
     wrap.setAttribute("data-history", "1");
 
+    // opcional "actions"
     var actions = el("div", "chat-message-actions");
     wrap.appendChild(actions);
 
     var md = el("div", "chat-message-markdown");
-
-    if (role === "bot") {
-      // Cria container temporário com o HTML do Simon
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = text || "";
-
-      // Força a transformação de qualquer link Shopinfo dentro de <p> em um botão
-      tempDiv.querySelectorAll("p").forEach((p) => {
-        const match = p.textContent.match(
-          /https:\/\/www\.shopinfo\.com\.br[^\s)]+/g
-        );
-        if (match) {
-          const url = match[0];
-
-          // Cria um botão visual (link estilizado)
-          const button = document.createElement("a");
-          button.href = url;
-          button.target = "_blank";
-          button.textContent = "🛒 VER PRODUTO";
-          button.style.cssText = `
-          display:block;
-          text-align:center;
-          background:linear-gradient(90deg,#00ffa3,#00c0ff);
-          color:#000;
-          padding:12px 20px;
-          border-radius:8px;
-          font-weight:700;
-          text-decoration:none;
-          margin:14px auto 6px;
-          width:fit-content;
-          font-family:'Roboto',sans-serif;
-          box-shadow:0 0 12px rgba(0,255,170,0.4);
-          transition:all .3s ease;
-        `;
-          button.onmouseenter = () => (button.style.filter = "brightness(1.2)");
-          button.onmouseleave = () => (button.style.filter = "brightness(1)");
-
-          // Remove o texto antigo (link cru) e adiciona o botão
-          p.replaceWith(button);
-        }
-      });
-
-      md.innerHTML = tempDiv.innerHTML.trim();
-    } else {
-      // Mensagem do usuário (texto puro)
-      const p = el("p", "");
-      p.textContent = text || "";
-      md.appendChild(p);
-    }
-
+    var p = el("p", "");
+    p.textContent = text || "";
+    md.appendChild(p);
     wrap.appendChild(md);
+
     return wrap;
   }
 
@@ -1057,3 +1013,62 @@ setTimeout(() => {
 setTimeout(() => {
   getChatHistory();
 }, 2000);
+
+
+
+function monitorarLinksShopinfo() {
+  const container = document.querySelector(".chat-messages-list");
+  if (!container) return;
+
+  // Função que transforma links em botões
+  function transformarLinksEmBotoes() {
+    container.querySelectorAll(".chat-message-from-bot .chat-message-markdown p").forEach((p) => {
+      // Ignora se o <p> já foi convertido
+      if (p.dataset.botaoCriado === "true") return;
+
+      const match = p.textContent.match(/https:\/\/www\.shopinfo\.com\.br[^\s)]+/g);
+      if (match) {
+        const url = match[0];
+
+        // Cria botão clicável
+        const botao = document.createElement("a");
+        botao.href = url;
+        botao.target = "_blank";
+        botao.textContent = "🛒 VER PRODUTO";
+        botao.style.cssText = `
+          display:block;
+          text-align:center;
+          background:linear-gradient(90deg,#00ffa3,#00c0ff);
+          color:#000;
+          padding:12px 20px;
+          border-radius:8px;
+          font-weight:700;
+          text-decoration:none;
+          margin:14px auto 6px;
+          width:fit-content;
+          font-family:'Roboto',sans-serif;
+          box-shadow:0 0 12px rgba(0,255,170,0.4);
+          transition:all .3s ease;
+        `;
+        botao.onmouseenter = () => (botao.style.filter = "brightness(1.2)");
+        botao.onmouseleave = () => (botao.style.filter = "brightness(1)");
+
+        // Substitui o conteúdo do <p> pelo botão
+        p.replaceWith(botao);
+      }
+
+      // Marca para não processar novamente
+      p.dataset.botaoCriado = "true";
+    });
+  }
+
+  // Executa uma vez ao carregar
+  transformarLinksEmBotoes();
+
+  // Observa mudanças no chat (novas mensagens)
+  const observer = new MutationObserver(() => transformarLinksEmBotoes());
+  observer.observe(container, { childList: true, subtree: true });
+}
+
+// Executa 2 segundos após iniciar o chat (tempo de render)
+setTimeout(monitorarLinksShopinfo, 2000);
