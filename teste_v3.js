@@ -647,44 +647,46 @@ async function getChatHistory() {
     wrap.appendChild(actions);
 
     var md = el("div", "chat-message-markdown");
-    var p = el("p", "");
 
-    // ✅ Só o Simon (bot) pode renderizar HTML de link
+    // ✅ se for mensagem do Simon, trata HTML e converte link em botão
     if (role === "bot") {
-      // Substitui links da Shopinfo por botão clicável
-      let html = (text || "").replace(
-        /(https:\/\/www\.shopinfo\.com\.br[^\s)]+)/g,
+      let html = text || "";
+
+      // converte o link da Shopinfo em botão
+      html = html.replace(
+        /(https:\/\/www\.shopinfo\.com\.br[^\s<)]+)/g,
         `
-        <br><br>
-        <a href="$1" target="_blank"
-          style="
-            display:inline-block;
-            background:linear-gradient(90deg,#00ffa3,#00c0ff);
-            color:#000;
-            padding:10px 18px;
-            border-radius:8px;
-            font-weight:700;
-            text-decoration:none;
-            margin-top:8px;
-            font-family:'Roboto',sans-serif;
-            transition:all .3s ease;
-            box-shadow:0 0 10px rgba(0,255,163,0.3);
-          "
-          onmouseover="this.style.filter='brightness(1.15)'"
-          onmouseout="this.style.filter='brightness(1)'"
-        >🔗 Ver produto</a>
-      `
+      <br>
+      <a href="$1" target="_blank"
+        style="
+          display:inline-block;
+          background:linear-gradient(90deg,#00ffa3,#00c0ff);
+          color:#000;
+          padding:10px 18px;
+          border-radius:8px;
+          font-weight:700;
+          text-decoration:none;
+          margin-top:8px;
+          font-family:'Roboto',sans-serif;
+          transition:all .3s ease;
+          box-shadow:0 0 10px rgba(0,255,163,0.3);
+        "
+        onmouseover="this.style.filter='brightness(1.15)'"
+        onmouseout="this.style.filter='brightness(1)'"
+      >🛒 Ver na Shopinfo</a>
+    `
       );
 
-      p.innerHTML = html.trim();
+      // define o HTML completo (mantém listas, <p>, <ul> etc.)
+      md.innerHTML = html.trim();
     } else {
-      // Usuário → mantém texto puro (seguro)
+      // usuário → texto puro
+      var p = el("p", "");
       p.textContent = text || "";
+      md.appendChild(p);
     }
 
-    md.appendChild(p);
     wrap.appendChild(md);
-
     return wrap;
   }
 
