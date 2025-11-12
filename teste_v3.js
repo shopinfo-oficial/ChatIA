@@ -647,14 +647,14 @@ async function getChatHistory() {
     var md = el("div", "chat-message-markdown");
     var p = el("p", "");
 
-    // 🔹 Substitui o link por um botão clicável
-    let html = (text || "")
-      // quebra o link e o substitui por botão
-      .replace(
+    // ✅ Só o Simon (bot) pode renderizar HTML de link
+    if (role === "bot") {
+      // Substitui links da Shopinfo por botão clicável
+      let html = (text || "").replace(
         /(https:\/\/www\.shopinfo\.com\.br[^\s)]+)/g,
         `
         <br><br>
-        <a href="$1" target="_blank" 
+        <a href="$1" target="_blank"
           style="
             display:inline-block;
             background:linear-gradient(90deg,#00ffa3,#00c0ff);
@@ -674,8 +674,12 @@ async function getChatHistory() {
       `
       );
 
-    // 🔹 Define HTML dentro da mensagem (não texto puro)
-    p.innerHTML = html.trim();
+      p.innerHTML = html.trim();
+    } else {
+      // Usuário → mantém texto puro (seguro)
+      p.textContent = text || "";
+    }
+
     md.appendChild(p);
     wrap.appendChild(md);
 
