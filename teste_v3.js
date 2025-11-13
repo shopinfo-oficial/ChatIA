@@ -1015,60 +1015,83 @@ setTimeout(() => {
 }, 2000);
 
 
-
 function monitorarLinksShopinfo() {
   const container = document.querySelector(".chat-messages-list");
   if (!container) return;
 
-  // Função que transforma links em botões
-  function transformarLinksEmBotoes() {
-    container.querySelectorAll(".chat-message-from-bot .chat-message-markdown p").forEach((p) => {
-      // Ignora se o <p> já foi convertido
-      if (p.dataset.botaoCriado === "true") return;
+  function transformarLinksEmElementos() {
+    container.querySelectorAll(".chat-message-from-bot .chat-message-markdown p")
+      .forEach((p) => {
+        if (p.dataset.botaoCriado === "true") return;
 
-      const match = p.textContent.match(/https:\/\/www\.shopinfo\.com\.br[^\s)]+/g);
-      if (match) {
-        const url = match[0];
+        const texto = p.textContent;
 
-        // Cria botão clicável
-        const botao = document.createElement("a");
-        botao.href = url;
-        botao.target = "_blank";
-        botao.textContent = "🛒 VER PRODUTO";
-        botao.style.cssText = `
-          display:block;
-          text-align:center;
-          background:linear-gradient(90deg,#00ffa3,#00c0ff);
-          color:#000;
-          padding:12px 20px;
-          border-radius:8px;
-          font-weight:700;
-          text-decoration:none;
-          margin:0px;
-          width:fit-content;
-          font-family:'Roboto',sans-serif;
-          box-shadow:0 0 12px rgba(0,255,170,0.4);
-          transition:all .3s ease;
-        `;
-        botao.onmouseenter = () => (botao.style.filter = "brightness(1.2)");
-        botao.onmouseleave = () => (botao.style.filter = "brightness(1)");
+        // --------------------------
+        // 1. Detectar link de imagem
+        // --------------------------
+        const regexImagem = /(https:\/\/[^\s]+?\.(png|jpg|jpeg|webp)(\?[^ )]+)?)/i;
+        const matchImagem = texto.match(regexImagem);
 
-        // Substitui o conteúdo do <p> pelo botão
-        p.replaceWith(botao);
-      }
+        if (matchImagem) {
+          const imgUrl = matchImagem[0];
 
-      // Marca para não processar novamente
-      p.dataset.botaoCriado = "true";
-    });
+          const img = document.createElement("img");
+          img.src = imgUrl;
+          img.alt = "Imagem do produto";
+          img.style.cssText = `
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: block;
+          `;
+
+          p.replaceWith(img);
+          p.dataset.botaoCriado = "true";
+          return;
+        }
+
+        // --------------------------
+        // 2. Detectar link de produto
+        // --------------------------
+        const matchProduto = texto.match(/https:\/\/www\.shopinfo\.com\.br[^\s)]+/g);
+
+        if (matchProduto) {
+          const url = matchProduto[0];
+
+          const botao = document.createElement("a");
+          botao.href = url;
+          botao.target = "_blank";
+          botao.textContent = "🛒 VER PRODUTO";
+          botao.style.cssText = `
+            display:block;
+            text-align:center;
+            background:linear-gradient(90deg,#00ffa3,#00c0ff);
+            color:#000;
+            padding:12px 20px;
+            border-radius:8px;
+            font-weight:700;
+            text-decoration:none;
+            margin:0px;
+            width:fit-content;
+            font-family:'Roboto',sans-serif;
+            box-shadow:0 0 12px rgba(0,255,170,0.4);
+            transition:all .3s ease;
+          `;
+          botao.onmouseenter = () => (botao.style.filter = "brightness(1.2)");
+          botao.onmouseleave = () => (botao.style.filter = "brightness(1)");
+
+          p.replaceWith(botao);
+        }
+
+        p.dataset.botaoCriado = "true";
+      });
   }
 
-  // Executa uma vez ao carregar
-  transformarLinksEmBotoes();
+  transformarLinksEmElementos();
 
-  // Observa mudanças no chat (novas mensagens)
-  const observer = new MutationObserver(() => transformarLinksEmBotoes());
+  const observer = new MutationObserver(() => transformarLinksEmElementos());
   observer.observe(container, { childList: true, subtree: true });
 }
 
-// Executa 2 segundos após iniciar o chat (tempo de render)
 setTimeout(monitorarLinksShopinfo, 2000);
