@@ -412,6 +412,11 @@ function CTA() {
       `;
 
         wrapper.innerHTML = `
+
+        <p style="margin-top:8px;color:#aaa;font-size:13px;text-align:center;">
+          Nosso assistente virtual pode te ajudar a encontrar o que procura 👇
+        </p>
+
         <button id="btn-open-simon-chat" style="
           background:linear-gradient(90deg,#00ffa3,#00c0ff);
           color:#000;
@@ -426,9 +431,7 @@ function CTA() {
         " onmouseover="this.style.filter='brightness(1.2)'" onmouseout="this.style.filter='brightness(1)'">
           💬 Falar com o Simon
         </button>
-        <p style="margin-top:8px;color:#aaa;font-size:13px;text-align:center;">
-          Nosso assistente virtual pode te ajudar a encontrar o que procura 👇
-        </p>
+       
       `;
 
         // 🔹 Insere o CTA logo entre o <p> e o <a>
