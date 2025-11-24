@@ -32,9 +32,11 @@ let dataHora = localStorage.getItem("dataHora");
 const agora = new Date();
 const expirou = !dataHora || agora - new Date(dataHora) > 24 * 60 * 60 * 1000;
 
+localStorage.removeItem("isVishPinou");
+
 // 🔹 Caso tenha passado 24h, limpa sessão e feedback
 if (expirou) {
-  console.log("🕒 Mais de 24h se passaram — limpando sessão e feedback...");
+
 
   // Remove dados antigos
   localStorage.removeItem("feedbackEnviado");
@@ -47,10 +49,11 @@ if (expirou) {
   localStorage.setItem("customSessionId", customSessionId);
   localStorage.setItem("dataHora", agora.toISOString());
 
-  console.log("🆕 Nova sessão criada após 24h:", customSessionId);
+  
 } else {
-  console.log("♻️ Sessão existente:", customSessionId);
+
 }
+
 
 // Inicializa o chat
 const chat = createChat({
@@ -132,6 +135,7 @@ function initializeChatUI() {
     restoreToggleToOriginalPlace();
   }
 
+
   // Clique no próprio toggle: abre se fechado, fecha (e restaura) se aberto
   chatToggle.addEventListener("click", async function () {
     // 🔹 Se o chat estiver aberto, vamos fechar e possivelmente abrir o modal
@@ -143,7 +147,7 @@ function initializeChatUI() {
         try {
           const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
           if (jaEnviado) {
-            console.log("✅ Feedback já enviado — modal não será exibido.");
+          
             return;
           }
 
@@ -152,15 +156,13 @@ function initializeChatUI() {
           const temHistorico = Array.isArray(history) && history.length > 0;
 
           if (temHistorico) {
-            console.log(
-              "🟢 Histórico encontrado — exibindo modal de feedback..."
-            );
+            
             showFeedbackModal();
           } else {
-            console.log("ℹ️ Nenhum histórico encontrado — não exibe modal.");
+           
           }
         } catch (err) {
-          console.error("❌ Erro ao verificar histórico:", err);
+        
         }
       }, 150);
 
@@ -366,6 +368,12 @@ function CTA() {
           const chatWrapper = document.querySelector(".chat-window-wrapper");
           const toggle = document.querySelector(".chat-window-toggle");
 
+
+            // 🔹 Quando o usuário clicar no CTA → enviar o produto para o backend
+              const product = getProductInfo();
+              const cleanText = getOnlyTextFromBody();
+              sendProductToBackend(product, cleanText);
+
           if (chatWrapper && toggle) {
             if (!chatWrapper.classList.contains("is-open")) {
               toggle.click(); // abre o chat
@@ -392,21 +400,6 @@ function CTA() {
 
   // ======== WEB (DESKTOP) ========
   function injectSimonWebCTASeparate() {
-    // 1) Caso "Vish, Pinou" (resultado vazio): insere entre <p> e <a.call-to-action>
-    var emptyP = document.querySelector(".container > div > p");
-    var emptyA = document.querySelector(".container > div > a.call-to-action");
-    if (emptyP && emptyA) {
-      if (document.querySelector("#simon-help-box")) return;
-      var isMobile = window.innerWidth <= 768;
-      var ctaEmpty = createSimonCTA(isMobile);
-      emptyP.insertAdjacentElement("afterend", ctaEmpty);
-      console.log(
-        "✅ CTA Simon inserido entre <p> e <a.call-to-action> (Vish, Pinou)."
-      );
-      return;
-    }
-
-    // 2) Comportamento original da PDP (desktop)
     const firstBlock = document.querySelector(
       ".productDescription-hexagon.mobile-notshow"
     );
@@ -424,21 +417,16 @@ function CTA() {
 
     // Insere logo abaixo do primeiro bloco
     firstBlock.insertAdjacentElement("afterend", secondBlock);
-    console.log(
-      "🖥️ CTA Simon adicionado no desktop dentro de nova div .productDescription-hexagon."
-    );
+    
 
-    // ======== CSS EXTRA (somente desktop) — evita duplicar
-    if (!document.querySelector("#simon-cta-desktop-style")) {
-      const style = document.createElement("style");
-      style.id = "simon-cta-desktop-style";
-      style.textContent = `
+    // ======== CSS EXTRA (somente desktop) ========
+    const style = document.createElement("style");
+    style.textContent = `
       .product__wrapper.product__single {
         margin-bottom: 180px !important;
       }
     `;
-      document.head.appendChild(style);
-    }
+    document.head.appendChild(style);
   }
 
   // ======== MOBILE ========
@@ -450,7 +438,7 @@ function CTA() {
 
     const cta = createSimonCTA(true);
     buyButton.parentElement.insertAdjacentElement("afterend", cta);
-    console.log("📱 CTA Simon adicionado abaixo do botão Comprar (mobile).");
+   
   }
 
   // ======== EXECUÇÃO ========
@@ -647,7 +635,6 @@ function getProductInfo() {
     );
     if (reviewEl) product.reviewCount = reviewEl.textContent.trim();
   }
-  console.log("📦 Produto detectado:", product);
 
   return product;
 }
@@ -684,9 +671,9 @@ async function sendProductToBackend(product, pageText) {
         body: JSON.stringify(payload),
       }
     );
-    console.log("📤 Dados enviados com sucesso:", payload);
+   
   } catch (e) {
-    console.error("❌ Erro ao enviar dados:", e);
+    
   }
 }
 
@@ -854,7 +841,7 @@ async function getChatHistory() {
 
 // ======= MODAL DE FEEDBACK =======
 function showFeedbackModal() {
-  console.log("🟢 Abrindo modal de feedback...");
+  
 
   // ======= BACKDROP =======
   const backdrop = document.createElement("div");
@@ -918,8 +905,7 @@ function showFeedbackModal() {
 
   // ======= DESCRIÇÃO =======
   const desc = document.createElement("p");
-  desc.textContent =
-    "Sua opinião ajuda a deixar o Simon cada vez mais afiado ⚡";
+  desc.textContent = "Sua opinião ajuda a deixar o Simon cada vez mais afiado ⚡";
   desc.style.cssText = `
     color: #aaa;
     font-size: 14px;
@@ -1000,7 +986,7 @@ function showFeedbackModal() {
     setTimeout(() => {
       document.body.removeChild(backdrop);
       localStorage.setItem("feedbackModalFechado", "true");
-      console.log("❌ Modal fechado sem feedback.");
+     
     }, 250);
   }
 
@@ -1038,6 +1024,9 @@ function showFeedbackModal() {
   }
 }
 
+
+
+
 // 🔹 Envia feedback para o backend
 
 async function sendFeedback(valor) {
@@ -1062,12 +1051,17 @@ async function sendFeedback(valor) {
     );
 
     localStorage.setItem("feedbackEnviado", "true");
-    console.log("📝 Feedback enviado:", valor);
+    
   } catch (e) {
-    console.error("❌ Erro ao enviar feedback:", e);
+    
     localStorage.setItem("feedbackEnviado", "false");
   }
 }
+
+
+
+
+
 
 function managePageSession() {
   const currentUrl = window.location.href;
@@ -1083,7 +1077,7 @@ function managePageSession() {
 
   // 🔹 Se expirou, limpa tudo
   if (expirou) {
-    console.log("🧹 Expirou — limpando dados de pageSessionData...");
+    
     localStorage.removeItem(pageKey); // remove todos os IDs de página
     return; // sai da função (vai recriar no próximo carregamento)
   }
@@ -1098,9 +1092,9 @@ function managePageSession() {
     };
 
     localStorage.setItem(pageKey, JSON.stringify(storedData));
-    console.log("🆕 Novo ID criado para esta página:", newId);
+    
   } else {
-    console.log("♻️ ID existente para esta página:", storedData[currentUrl].id);
+    
   }
 }
 
@@ -1108,10 +1102,6 @@ function managePageSession() {
 const product = getProductInfo();
 const cleanText = getOnlyTextFromBody();
 
-// Envia produto
-setTimeout(() => {
-  sendProductToBackend(product, cleanText);
-}, 1500);
 
 // Busca histórico da conversa
 setTimeout(() => {
