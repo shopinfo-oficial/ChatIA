@@ -1,3 +1,4 @@
+
 const linkChatSimon = document.createElement("link");
 linkChatSimon.rel = "stylesheet";
 linkChatSimon.href = "https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css";
@@ -373,6 +374,9 @@ function CTA() {
               const product = getProductInfo();
               const cleanText = getOnlyTextFromBody();
               sendProductToBackend(product, cleanText);
+
+              console.log("teste produto");
+              
 
           if (chatWrapper && toggle) {
             if (!chatWrapper.classList.contains("is-open")) {
