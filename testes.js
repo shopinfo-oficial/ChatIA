@@ -280,9 +280,9 @@ function CTA() {
     wrapper.style.cssText = `
       display:flex;
       justify-content:center;
-      margin-top:${isMobile ? "20px" : "0px"};
+      margin-top:${isMobile ? "20px" : "9em"};
       margin-bottom:0px;
-      width:100%;
+      width:113%;
       animation:fadeIn .4s ease;
     `;
 
