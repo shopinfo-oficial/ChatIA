@@ -403,46 +403,34 @@ function CTA() {
 
   // ======== WEB (DESKTOP) ========
   function injectSimonWebCTASeparate() {
-  const blocks = document.querySelectorAll(".productDescription-hexagon.mobile-notshow");
-  if (blocks.length < 2) return;
+    const firstBlock = document.querySelector(
+      ".productDescription-hexagon.mobile-notshow"
+    );
+    if (!firstBlock || document.querySelector("#simon-help-box")) return;
 
-  const secondBlock = blocks[1];
+    // Cria a segunda div com a mesma classe
+    const secondBlock = document.createElement("div");
+    secondBlock.className = "productDescription-hexagon mobile-notshow";
+    secondBlock.style.top = "545px";
+    secondBlock.style.setProperty("box-shadow", "none", "important");
 
-  // Impede duplicação
-  if (document.querySelector("#simon-help-box")) return;
+    // Adiciona o CTA dentro
+    const cta = createSimonCTA(false);
+    secondBlock.appendChild(cta);
 
-  // Cria o CTA normalmente
-  const cta = createSimonCTA(false);
+    // Insere logo abaixo do primeiro bloco
+    firstBlock.insertAdjacentElement("afterend", secondBlock);
+    
 
-  // APLICAR ESTILO PEDIDO NO <section>
-  const section = cta.querySelector("section");
-  if (section) {
-    section.style.marginTop = "9em";
-    section.style.padding = "7px";
-    section.style.color = "#ddd";
-    section.style.maxWidth = "49%";
-    section.style.textAlign = "center";
-    section.style.fontFamily = "'Roboto', sans-serif";
-    section.style.position = "absolute";
-    section.style.display = "flex";
-    section.style.justifyContent = "center";
-    section.style.alignItems = "center";
-    section.style.left = "1%";
+    // ======== CSS EXTRA (somente desktop) ========
+    const style = document.createElement("style");
+    style.textContent = `
+      .product__wrapper.product__single {
+        margin-bottom: 180px !important;
+      }
+    `;
+    document.head.appendChild(style);
   }
-
-  // INSERE O CTA ABAIXO do bloco 2 (como no print)
-  secondBlock.insertAdjacentElement("afterend", cta);
-
-  // CSS adicional
-  const style = document.createElement("style");
-  style.textContent = `
-    .product__wrapper.product__single {
-      margin-bottom: 180px !important;
-    }
-  `;
-  document.head.appendChild(style);
-}
-
 
   // ======== MOBILE ========
   function injectSimonMobileCTA() {
