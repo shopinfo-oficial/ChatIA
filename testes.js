@@ -36,8 +36,6 @@ localStorage.removeItem("isVishPinou");
 
 // 🔹 Caso tenha passado 24h, limpa sessão e feedback
 if (expirou) {
-
-
   // Remove dados antigos
   localStorage.removeItem("feedbackEnviado");
   localStorage.removeItem("pageSessionData");
@@ -48,12 +46,8 @@ if (expirou) {
   customSessionId = crypto.randomUUID();
   localStorage.setItem("customSessionId", customSessionId);
   localStorage.setItem("dataHora", agora.toISOString());
-
-  
 } else {
-
 }
-
 
 // Inicializa o chat
 const chat = createChat({
@@ -135,7 +129,6 @@ function initializeChatUI() {
     restoreToggleToOriginalPlace();
   }
 
-
   // Clique no próprio toggle: abre se fechado, fecha (e restaura) se aberto
   chatToggle.addEventListener("click", async function () {
     // 🔹 Se o chat estiver aberto, vamos fechar e possivelmente abrir o modal
@@ -147,7 +140,6 @@ function initializeChatUI() {
         try {
           const jaEnviado = localStorage.getItem("feedbackEnviado") === "true";
           if (jaEnviado) {
-          
             return;
           }
 
@@ -156,14 +148,10 @@ function initializeChatUI() {
           const temHistorico = Array.isArray(history) && history.length > 0;
 
           if (temHistorico) {
-            
             showFeedbackModal();
           } else {
-           
           }
-        } catch (err) {
-        
-        }
+        } catch (err) {}
       }, 150);
 
       // 🔹 Se o chat estiver fechado, apenas abre normalmente
@@ -368,14 +356,10 @@ function CTA() {
           const chatWrapper = document.querySelector(".chat-window-wrapper");
           const toggle = document.querySelector(".chat-window-toggle");
 
-
-            // 🔹 Quando o usuário clicar no CTA → enviar o produto para o backend
-              const product = getProductInfo();
-              const cleanText = getOnlyTextFromBody();
-              sendProductToBackend(product, cleanText);
-
-   
-              
+          // 🔹 Quando o usuário clicar no CTA → enviar o produto para o backend
+          const product = getProductInfo();
+          const cleanText = getOnlyTextFromBody();
+          sendProductToBackend(product, cleanText);
 
           if (chatWrapper && toggle) {
             if (!chatWrapper.classList.contains("is-open")) {
@@ -406,29 +390,31 @@ function CTA() {
     const firstBlock = document.querySelector(
       ".productDescription-hexagon.mobile-notshow"
     );
+
     if (!firstBlock || document.querySelector("#simon-help-box")) return;
 
-    // Cria a segunda div com a mesma classe
+    // 1. Criar o segundo bloco vazio
     const secondBlock = document.createElement("div");
     secondBlock.className = "productDescription-hexagon mobile-notshow";
     secondBlock.style.top = "545px";
     secondBlock.style.setProperty("box-shadow", "none", "important");
 
-    // Adiciona o CTA dentro
-    const cta = createSimonCTA(false);
-    secondBlock.appendChild(cta);
-
-    // Insere logo abaixo do primeiro bloco
+    // 2. Inserir o segundo bloco após o primeiro
     firstBlock.insertAdjacentElement("afterend", secondBlock);
-    
 
-    // ======== CSS EXTRA (somente desktop) ========
+    // 3. Criar o CTA
+    const cta = createSimonCTA(false);
+
+    // 4. Inserir o CTA *depois* do segundo bloco (não dentro!)
+    secondBlock.insertAdjacentElement("afterend", cta);
+
+    // 5. Ajuste visual
     const style = document.createElement("style");
     style.textContent = `
-      .product__wrapper.product__single {
-        margin-bottom: 180px !important;
-      }
-    `;
+    .product__wrapper.product__single {
+      margin-bottom: 180px !important;
+    }
+  `;
     document.head.appendChild(style);
   }
 
@@ -441,7 +427,6 @@ function CTA() {
 
     const cta = createSimonCTA(true);
     buyButton.parentElement.insertAdjacentElement("afterend", cta);
-   
   }
 
   // ======== EXECUÇÃO ========
@@ -674,10 +659,7 @@ async function sendProductToBackend(product, pageText) {
         body: JSON.stringify(payload),
       }
     );
-   
-  } catch (e) {
-    
-  }
+  } catch (e) {}
 }
 
 function getOnlyTextFromBody() {
@@ -844,8 +826,6 @@ async function getChatHistory() {
 
 // ======= MODAL DE FEEDBACK =======
 function showFeedbackModal() {
-  
-
   // ======= BACKDROP =======
   const backdrop = document.createElement("div");
   backdrop.style.cssText = `
@@ -908,7 +888,8 @@ function showFeedbackModal() {
 
   // ======= DESCRIÇÃO =======
   const desc = document.createElement("p");
-  desc.textContent = "Sua opinião ajuda a deixar o Simon cada vez mais afiado ⚡";
+  desc.textContent =
+    "Sua opinião ajuda a deixar o Simon cada vez mais afiado ⚡";
   desc.style.cssText = `
     color: #aaa;
     font-size: 14px;
@@ -989,7 +970,6 @@ function showFeedbackModal() {
     setTimeout(() => {
       document.body.removeChild(backdrop);
       localStorage.setItem("feedbackModalFechado", "true");
-     
     }, 250);
   }
 
@@ -1027,9 +1007,6 @@ function showFeedbackModal() {
   }
 }
 
-
-
-
 // 🔹 Envia feedback para o backend
 
 async function sendFeedback(valor) {
@@ -1054,17 +1031,10 @@ async function sendFeedback(valor) {
     );
 
     localStorage.setItem("feedbackEnviado", "true");
-    
   } catch (e) {
-    
     localStorage.setItem("feedbackEnviado", "false");
   }
 }
-
-
-
-
-
 
 function managePageSession() {
   const currentUrl = window.location.href;
@@ -1080,7 +1050,6 @@ function managePageSession() {
 
   // 🔹 Se expirou, limpa tudo
   if (expirou) {
-    
     localStorage.removeItem(pageKey); // remove todos os IDs de página
     return; // sai da função (vai recriar no próximo carregamento)
   }
@@ -1095,16 +1064,13 @@ function managePageSession() {
     };
 
     localStorage.setItem(pageKey, JSON.stringify(storedData));
-    
   } else {
-    
   }
 }
 
 // Executa automático ao abrir a página
 const product = getProductInfo();
 const cleanText = getOnlyTextFromBody();
-
 
 // Busca histórico da conversa
 setTimeout(() => {
