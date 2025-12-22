@@ -443,7 +443,7 @@ async function sendFeedback(e) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionId: t,
-          isVishPinou: "true",
+          isVishPinou: true,
           url: n,
           feedback: e,
           dataHora: new Date().toISOString(),
